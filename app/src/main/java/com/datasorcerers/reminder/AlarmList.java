@@ -1,9 +1,13 @@
 package com.datasorcerers.reminder;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -106,7 +110,7 @@ public class AlarmList extends AppCompatActivity implements
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                //dialog.cancel();
                 newAlarm = new Alarm();
                 newAlarm.setNote(input.getText().toString());
                 DialogFragment newFragment = new DatePickerFragment();
@@ -124,7 +128,7 @@ public class AlarmList extends AppCompatActivity implements
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        DateTime dt = new DateTime();
+        DateTime dt = new DateTime(0);
         dt = dt.withDate(year, monthOfYear, dayOfMonth);
         newAlarm.setDate(dt.getMillis());
         DialogFragment newFragment = new TimePickerFragment();
@@ -138,9 +142,19 @@ public class AlarmList extends AppCompatActivity implements
         dt = dt.withMinuteOfHour(minute);
         newAlarm.setDate(dt.getMillis());
 
-        databaseHelper.add(newAlarm);
-        ((AlarmListAdapter) adapter).add(newAlarm);
-        newAlarm = null;
+
+        if (dt.isBeforeNow()) {
+            databaseHelper.add(newAlarm);
+            ((AlarmListAdapter) adapter).add(newAlarm);
+            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(this, AlarmReceiver.class);
+            intent.putExtra("action", AlarmReceiver.ALARM_START_ACTION);
+            intent.putExtra("note", "note");
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            am.set(AlarmManager.RTC_WAKEUP, newAlarm.getDate(), pendingIntent);
+        }
     }
 
     public static class DatePickerFragment extends DialogFragment {
