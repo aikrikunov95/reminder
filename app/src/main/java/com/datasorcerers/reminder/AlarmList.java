@@ -43,6 +43,7 @@ public class AlarmList extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alarm_list);
 
+
         recyclerView = (RecyclerView) findViewById(R.id.alarms_recycler_view);
         recyclerView.setHasFixedSize(true);
 
@@ -128,8 +129,8 @@ public class AlarmList extends AppCompatActivity implements
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        DateTime dt = new DateTime(0);
-        dt = dt.withDate(year, monthOfYear, dayOfMonth);
+        DateTime dt = new DateTime();
+        dt = dt.withDate(year, monthOfYear+1, dayOfMonth);
         newAlarm.setDate(dt.getMillis());
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getSupportFragmentManager(), "timePicker");
@@ -138,22 +139,25 @@ public class AlarmList extends AppCompatActivity implements
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         DateTime dt = new DateTime(newAlarm.getDate());
-        dt = dt.withHourOfDay(hourOfDay);
-        dt = dt.withMinuteOfHour(minute);
+        dt = dt.withHourOfDay(hourOfDay)
+                .withMinuteOfHour(minute)
+                .withSecondOfMinute(0)
+                .withMillisOfSecond(0);
         newAlarm.setDate(dt.getMillis());
 
 
-        if (dt.isBeforeNow()) {
-            databaseHelper.add(newAlarm);
-            ((AlarmListAdapter) adapter).add(newAlarm);
-            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (dt.isAfterNow()) {
             Intent intent = new Intent(this, AlarmReceiver.class);
             intent.putExtra("action", AlarmReceiver.ALARM_START_ACTION);
-            intent.putExtra("note", "note");
+            intent.putExtra("note", newAlarm.getNote());
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
+            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             am.set(AlarmManager.RTC_WAKEUP, newAlarm.getDate(), pendingIntent);
+
+            databaseHelper.add(newAlarm);
+            ((AlarmListAdapter) adapter).add(newAlarm);
         }
     }
 
