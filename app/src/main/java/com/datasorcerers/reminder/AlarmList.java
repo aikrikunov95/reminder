@@ -148,13 +148,13 @@ public class AlarmList extends AppCompatActivity implements
 
         if (dt.isAfterNow()) {
             Intent intent = new Intent(this, AlarmReceiver.class);
-            intent.putExtra("action", AlarmReceiver.ALARM_START_ACTION);
+            intent.putExtra("action", AlarmReceiver.ACTION_SETUP);
             intent.putExtra("note", newAlarm.getNote());
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            am.set(AlarmManager.RTC_WAKEUP, newAlarm.getDate(), pendingIntent);
+            am.set(AlarmManager.RTC_WAKEUP, new DateTime().getMillis() + 5000, pendingIntent);
 
             databaseHelper.add(newAlarm);
             ((AlarmListAdapter) adapter).add(newAlarm);

@@ -1,51 +1,79 @@
 package com.datasorcerers.reminder;
 
-import android.app.Notification;
-import android.app.NotificationManager;
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import org.joda.time.DateTime;
+
 public class AlarmReceiver extends BroadcastReceiver {
 
-    public static final int ALARM_DISMISS_ACTION = 0;
-    public static final int ALARM_START_ACTION = 1;
+    public static final int ACTION_SETUP = 0;
+    public static final int ACTION_SNOOZE = 1;
+    public static final int ACTION_DISMISS = 2;
+
+    private static boolean notificationIsActive = false;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        int action = intent.getIntExtra("action", 2);
+        int action = intent.getIntExtra("action", 3);
         switch (action) {
             case 0:
                 AlarmKlaxon.stop();
                 AlarmWakeLock.release();
+                NotificationService.cancelNotification(context);
+                setNotificationIsActive(false);
                 break;
             case 1:
                 AlarmKlaxon.start(context);
                 AlarmWakeLock.acquire(context);
-                showNotification(context, intent);
+                NotificationService.issueNotification(context, intent);
+                setNotificationIsActive(true);
+
+                Intent notificationServiceIntent = new Intent(context, NotificationService.class);
+                notificationServiceIntent.putExtra("note", intent.getStringExtra("note"));
+                context.startService(notificationServiceIntent);
                 break;
+            case 2:
+                AlarmKlaxon.stop();
+                AlarmWakeLock.release();
+                NotificationService.cancelNotification(context);
+
+                start(context, intent.getStringExtra("note"), new DateTime().getMillis() + 10000);
+                break;
+
         }
     }
 
-    private void showNotification(Context context, Intent intent) {
-        NotificationManager nm = (NotificationManager)
-                context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        Intent deleteIntent = new Intent(context, AlarmReceiver.class);
-        deleteIntent.putExtra("action", ALARM_DISMISS_ACTION);
-        PendingIntent delete = PendingIntent.getBroadcast(context, 0, deleteIntent,
+    public static void start(Context context, String note, long time) {
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.putExtra("action", AlarmReceiver.ACTION_SETUP);
+        intent.putExtra("note", note);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification.Builder nb = new Notification.Builder(context);
-        nb
-                .setSmallIcon(R.mipmap.ic_launcher) // TODO icon
-                .setContentTitle("Reminder")
-                .setContentText(intent.getStringExtra("note"))
-                .setDeleteIntent(delete)
-                .setPriority(Notification.PRIORITY_MAX)
-                .setVibrate(new long[0]);
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+    }
 
-        nm.notify(1, nb.build()); // TODO hardcode
+    public static void snooze(Context context, Intent dataIntent) {
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.putExtra("action", AlarmReceiver.ACTION_SNOOZE);
+        intent.putExtra("note", dataIntent.getStringExtra("note"));
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, new DateTime().getMillis() + 10000, pendingIntent);
+    }
+
+    public static void setNotificationIsActive(boolean b) {
+        notificationIsActive = b;
+    }
+
+    public static boolean notificationIsActive() {
+        return notificationIsActive;
     }
 }
