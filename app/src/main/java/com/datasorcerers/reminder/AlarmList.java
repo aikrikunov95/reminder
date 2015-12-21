@@ -33,6 +33,7 @@ public class AlarmList extends AppCompatActivity implements
     private Alarm newAlarm;
 
     private DatabaseHelper databaseHelper;
+    private AlarmManagerHelper amHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,7 @@ public class AlarmList extends AppCompatActivity implements
         recyclerView.setLayoutManager(layoutManager);
 
         databaseHelper = new DatabaseHelper(getApplicationContext());
+        amHelper = new AlarmManagerHelper(this);
 
         adapter = new AlarmListAdapter(databaseHelper.getAll());
         recyclerView.setAdapter(adapter);
@@ -143,7 +145,7 @@ public class AlarmList extends AppCompatActivity implements
 
 
         if (dt.isAfterNow()) {
-            AlarmManagerHelper.set(this, /*newAlarm.getDate()*/ new DateTime().getMillis() + 2000, newAlarm.getNote());
+            amHelper.set(/*newAlarm.getDate()*/ new DateTime().getMillis() + 2000, newAlarm.getNote());
             //databaseHelper.add(newAlarm);
             //((AlarmListAdapter) adapter).add(newAlarm);
         }

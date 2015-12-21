@@ -17,8 +17,11 @@ public class NotificationService extends IntentService {
 
     private static boolean notificationCanceled;
 
+    private AlarmManagerHelper amHelper;
+
     public NotificationService() {
         super("NotificationService");
+        this.amHelper = new AlarmManagerHelper(this);
     }
 
     @Override
@@ -43,7 +46,7 @@ public class NotificationService extends IntentService {
                     AlarmKlaxon.stop();
                     AlarmWakeLock.release();
                     if (!notificationCanceled) {
-                        AlarmManagerHelper.set(context, new DateTime().getMillis() + SNOOZE_TIME, note);
+                        amHelper.set(new DateTime().getMillis() + SNOOZE_TIME, note);
                     }
                 }
             }.start();
@@ -52,7 +55,7 @@ public class NotificationService extends IntentService {
             AlarmKlaxon.stop();
             AlarmWakeLock.release();
             notificationCanceled = true;
-            AlarmManagerHelper.cancel(context, note);
+            amHelper.cancel(note);
         }
     }
 
