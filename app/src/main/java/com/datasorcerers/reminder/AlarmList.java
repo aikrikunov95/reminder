@@ -1,13 +1,9 @@
 package com.datasorcerers.reminder;
 
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -147,17 +143,9 @@ public class AlarmList extends AppCompatActivity implements
 
 
         if (dt.isAfterNow()) {
-            Intent intent = new Intent(this, AlarmReceiver.class);
-            intent.putExtra("action", AlarmReceiver.ACTION_SETUP);
-            intent.putExtra("note", newAlarm.getNote());
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            am.set(AlarmManager.RTC_WAKEUP, new DateTime().getMillis() + 5000, pendingIntent);
-
-            databaseHelper.add(newAlarm);
-            ((AlarmListAdapter) adapter).add(newAlarm);
+            AlarmManagerHelper.set(this, /*newAlarm.getDate()*/ new DateTime().getMillis() + 2000, newAlarm.getNote());
+            //databaseHelper.add(newAlarm);
+            //((AlarmListAdapter) adapter).add(newAlarm);
         }
     }
 
