@@ -1,18 +1,23 @@
 package com.datasorcerers.reminder;
 
-public class Alarm {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Alarm implements Parcelable {
+
+    public static final String TAG = "alarm";
 
     private String note;
-    private long date;
+    private long datetime;
 
     public Alarm() {
         this.note = "";
-        this.date = 0;
+        this.datetime = 0;
     }
 
-    public Alarm(String note, long date) {
+    public Alarm(String note, long datetime) {
         this.note = note;
-        this.date = date;
+        this.datetime = datetime;
     }
 
     public String getNote() {
@@ -23,16 +28,46 @@ public class Alarm {
         this.note = note;
     }
 
-    public long getDate() {
-        return date;
+    public long getDatetime() {
+        return datetime;
     }
 
-    public void setDate(long date) {
-        this.date = date;
+    public void setDatetime(long datetime) {
+        this.datetime = datetime;
     }
 
     @Override
     public String toString() {
-        return note + " " + String.valueOf(date);
+        return note + " " + String.valueOf(datetime);
     }
+
+    // Parcelable stuff
+
+    private Alarm(Parcel in) {
+        this.note = in.readString();
+        this.datetime = in.readLong();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(note);
+        dest.writeLong(datetime);
+    }
+
+    public static final Parcelable.Creator<Alarm> CREATOR = new Creator<Alarm>() {
+        @Override
+        public Alarm createFromParcel(Parcel source) {
+            return new Alarm(source);
+        }
+
+        @Override
+        public Alarm[] newArray(int size) {
+            return new Alarm[size];
+        }
+    };
 }

@@ -15,20 +15,22 @@ public class NotificationService extends IntentService {
     private final static long TIMEOUT_TIME = 3 * 1000;
     private final static long SNOOZE_TIME = 5 * 1000;
 
-    private static boolean notificationCanceled;
+    private final static String START_TAG = "start";
 
-    private AlarmManagerHelper amHelper;
+    private static boolean notificationCanceled;
 
     public NotificationService() {
         super("NotificationService");
-        this.amHelper = new AlarmManagerHelper(this);
     }
 
     @Override
     protected void onHandleIntent(final Intent intent) {
+        final AlarmManagerHelper amHelper = new AlarmManagerHelper(this);
+        final DatabaseHelper dbHelper = new DatabaseHelper(this);
         final Context context = getApplicationContext();
-        final String note = intent.getStringExtra("note");
-        if (intent.getBooleanExtra("start", true)) {
+        final Alarm alarm = intent.getParcelableExtra(Alarm.TAG);
+
+        if (intent.getBooleanExtra(START_TAG, true)) {
             AlarmKlaxon.start(context);
             AlarmWakeLock.acquire(context);
             issueNotification(context, intent);
@@ -46,7 +48,7 @@ public class NotificationService extends IntentService {
                     AlarmKlaxon.stop();
                     AlarmWakeLock.release();
                     if (!notificationCanceled) {
-                        amHelper.set(new DateTime().getMillis() + SNOOZE_TIME, note);
+                        amHelper.set(new DateTime().getMillis() + SNOOZE_TIME, alarm);
                     }
                 }
             }.start();
@@ -55,16 +57,19 @@ public class NotificationService extends IntentService {
             AlarmKlaxon.stop();
             AlarmWakeLock.release();
             notificationCanceled = true;
-            amHelper.cancel(note);
+            amHelper.cancel(alarm);
+            dbHelper.delete(alarm);
         }
     }
 
     private void issueNotification(Context context, Intent intent) {
         NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
+        Alarm alarm = intent.getParcelableExtra(Alarm.TAG);
 
         Intent deleteIntent = new Intent(context, NotificationService.class);
-        deleteIntent.putExtra("start", false);
+        deleteIntent.putExtra(START_TAG, false);
+        deleteIntent.putExtra(Alarm.TAG, alarm);
         PendingIntent delete = PendingIntent.getService(context, 0, deleteIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 

@@ -14,19 +14,24 @@ public class AlarmManagerHelper {
         this.am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     }
 
-    public void set(long time, String note) {
-        PendingIntent pendingIntent = getPendingIntent(note);
+    public void set(Alarm alarm) {
+        PendingIntent pendingIntent = getPendingIntent(alarm);
+        am.set(AlarmManager.RTC_WAKEUP, alarm.getDatetime(), pendingIntent);
+    }
+
+    public void set(long time, Alarm alarm) {
+        PendingIntent pendingIntent = getPendingIntent(alarm);
         am.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
     }
 
-    public void cancel(String note) {
-        PendingIntent pendingIntent = getPendingIntent(note);
+    public void cancel(Alarm alarm) {
+        PendingIntent pendingIntent = getPendingIntent(alarm);
         am.cancel(pendingIntent);
     }
 
-    private PendingIntent getPendingIntent(String note) {
+    private PendingIntent getPendingIntent(Alarm alarm) {
         Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.putExtra("note", note);
+        intent.putExtra(Alarm.TAG, alarm);
         return PendingIntent.getBroadcast(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }

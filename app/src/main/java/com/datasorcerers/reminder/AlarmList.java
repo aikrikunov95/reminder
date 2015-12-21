@@ -65,7 +65,7 @@ public class AlarmList extends AppCompatActivity implements
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = viewHolder.getAdapterPosition();
                 databaseHelper.delete(((AlarmListAdapter)adapter).get(position));
-                ((AlarmListAdapter)adapter).removeItemAt(position);
+                ((AlarmListAdapter) adapter).removeItemAt(position);
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallback);
@@ -103,13 +103,12 @@ public class AlarmList extends AppCompatActivity implements
     public void addAlarm(View v) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Description");
+        builder.setTitle("Note");
         final EditText input = new EditText(this);
         builder.setView(input);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //dialog.cancel();
                 newAlarm = new Alarm();
                 newAlarm.setNote(input.getText().toString());
                 DialogFragment newFragment = new DatePickerFragment();
@@ -129,25 +128,25 @@ public class AlarmList extends AppCompatActivity implements
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
         DateTime dt = new DateTime();
         dt = dt.withDate(year, monthOfYear+1, dayOfMonth);
-        newAlarm.setDate(dt.getMillis());
+        newAlarm.setDatetime(dt.getMillis());
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        DateTime dt = new DateTime(newAlarm.getDate());
+        DateTime dt = new DateTime(newAlarm.getDatetime());
         dt = dt.withHourOfDay(hourOfDay)
                 .withMinuteOfHour(minute)
                 .withSecondOfMinute(0)
                 .withMillisOfSecond(0);
-        newAlarm.setDate(dt.getMillis());
+        newAlarm.setDatetime(dt.getMillis());
 
 
         if (dt.isAfterNow()) {
-            amHelper.set(/*newAlarm.getDate()*/ new DateTime().getMillis() + 2000, newAlarm.getNote());
-            //databaseHelper.add(newAlarm);
-            //((AlarmListAdapter) adapter).add(newAlarm);
+            amHelper.set(/*newAlarm.getDatetime()*/ new DateTime().getMillis() + 2000, newAlarm);
+            databaseHelper.add(newAlarm);
+            ((AlarmListAdapter) adapter).add(newAlarm);
         }
     }
 

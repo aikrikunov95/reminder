@@ -44,7 +44,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
         this.alarms = new SortedList<>(Alarm.class, new SortedList.Callback<Alarm>() {
             @Override
             public int compare(Alarm o1, Alarm o2) {
-                return (int) (o1.getDate() - o2.getDate());
+                return (int) (o1.getDatetime() - o2.getDatetime());
             }
 
             @Override
@@ -75,7 +75,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
             @Override
             public boolean areItemsTheSame(Alarm item1, Alarm item2) {
                 boolean notesSame = item1.getNote().equals(item2.getNote());
-                boolean datesSame = item1.getDate() == item2.getDate();
+                boolean datesSame = item1.getDatetime() == item2.getDatetime();
                 return notesSame && datesSame;
             }
         });
@@ -93,7 +93,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.note.setText(alarms.get(position).getNote());
-        holder.date.setText(formatDate(alarms.get(position).getDate()));
+        holder.date.setText(formatDate(alarms.get(position).getDatetime()));
     }
 
     @Override

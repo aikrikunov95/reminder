@@ -8,8 +8,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Alarm alarm = intent.getParcelableExtra(Alarm.TAG);
         Intent notificationServiceIntent = new Intent(context, NotificationService.class);
-        notificationServiceIntent.putExtra("note", intent.getStringExtra("note"));
+        notificationServiceIntent.putExtra(Alarm.TAG, alarm);
         context.startService(notificationServiceIntent);
     }
 }
