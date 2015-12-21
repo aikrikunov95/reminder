@@ -3,7 +3,11 @@ package com.datasorcerers.reminder;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -32,7 +36,9 @@ public class AlarmList extends AppCompatActivity implements
 
     private Alarm newAlarm;
 
-    private DatabaseHelper databaseHelper;
+    BroadcastReceiver receiver;
+
+    private DatabaseHelper dbHelper;
     private AlarmManagerHelper amHelper;
 
     @Override
@@ -47,11 +53,22 @@ public class AlarmList extends AppCompatActivity implements
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        databaseHelper = new DatabaseHelper(getApplicationContext());
+        dbHelper = new DatabaseHelper(getApplicationContext());
         amHelper = new AlarmManagerHelper(this);
 
-        adapter = new AlarmListAdapter(databaseHelper.getAll());
+        adapter = new AlarmListAdapter(dbHelper.getAll());
         recyclerView.setAdapter(adapter);
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Alarm alarm = intent.getParcelableExtra(Alarm.TAG);
+                ((AlarmListAdapter) adapter).remove(alarm);
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("updateUI");
+        registerReceiver(receiver, filter);
 
         ItemTouchHelper.SimpleCallback itemTouchCallback = new ItemTouchHelper.SimpleCallback(
                 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -64,7 +81,7 @@ public class AlarmList extends AppCompatActivity implements
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = viewHolder.getAdapterPosition();
-                databaseHelper.delete(((AlarmListAdapter)adapter).get(position));
+                dbHelper.delete(((AlarmListAdapter) adapter).get(position));
                 ((AlarmListAdapter) adapter).removeItemAt(position);
             }
         };
@@ -99,6 +116,12 @@ public class AlarmList extends AppCompatActivity implements
         super.onStop();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unregisterReceiver(receiver);
+    }
 
     public void addAlarm(View v) {
 
@@ -145,7 +168,7 @@ public class AlarmList extends AppCompatActivity implements
 
         if (dt.isAfterNow()) {
             amHelper.set(/*newAlarm.getDatetime()*/ new DateTime().getMillis() + 2000, newAlarm);
-            databaseHelper.add(newAlarm);
+            dbHelper.add(newAlarm);
             ((AlarmListAdapter) adapter).add(newAlarm);
         }
     }

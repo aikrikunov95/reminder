@@ -59,6 +59,10 @@ public class NotificationService extends IntentService {
             notificationCanceled = true;
             amHelper.cancel(alarm);
             dbHelper.delete(alarm);
+
+            Intent updateUIIntent = new Intent("updateUI");
+            updateUIIntent.putExtra(Alarm.TAG, alarm);
+            sendBroadcast(updateUIIntent);
         }
     }
 
