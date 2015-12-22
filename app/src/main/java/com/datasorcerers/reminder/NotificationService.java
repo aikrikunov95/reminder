@@ -81,7 +81,7 @@ public class NotificationService extends IntentService {
         nb
                 .setSmallIcon(R.mipmap.ic_launcher) // TODO icon
                 .setContentTitle("Reminder")
-                .setContentText(intent.getStringExtra("note"))
+                .setContentText(alarm.getNote())
                 .setDeleteIntent(delete)
                 .setPriority(Notification.PRIORITY_MAX)
                 .setVibrate(new long[0]);

@@ -13,14 +13,18 @@ import java.util.List;
 
 public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.ViewHolder> {
     private SortedList<Alarm> alarms;
+    private ViewHolder.IViewHolderClick listener;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView note, date;
+        private IViewHolderClick clickListener;
 
-        public ViewHolder(View v) {
+        public ViewHolder(View v, IViewHolderClick listener) {
             super(v);
+            clickListener = listener;
             note = (TextView) v.findViewById(R.id.alarm_note);
             date = (TextView) v.findViewById(R.id.alarm_date);
+            v.setOnClickListener(this);
         }
 
         public TextView getNote() {
@@ -38,9 +42,20 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
         public void setDate(TextView date) {
             this.date = date;
         }
+
+        @Override
+        public void onClick(View v) {
+            clickListener.showEditDialog(v, getLayoutPosition());
+        }
+
+        public static interface IViewHolderClick {
+            public void showEditDialog(View caller, int pos);
+        }
+
     }
 
-    public AlarmListAdapter(List<Alarm> alarms) {
+    public AlarmListAdapter(List<Alarm> alarms, ViewHolder.IViewHolderClick listener) {
+        this.listener = listener;
         this.alarms = new SortedList<>(Alarm.class, new SortedList.Callback<Alarm>() {
             @Override
             public int compare(Alarm o1, Alarm o2) {
@@ -87,7 +102,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.alarm_list_item, parent, false);
 
-        return new ViewHolder(v);
+        return new ViewHolder(v, listener);
     }
 
     @Override
