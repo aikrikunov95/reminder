@@ -31,43 +31,39 @@ import java.util.Calendar;
 public class AlarmList extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
 
+    // UI
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private FloatingActionButton fab;
 
+    // service
+    private BroadcastReceiver receiver;
+    private DatabaseHelper dbHelper;
+    private AlarmManagerHelper amHelper;
+
+    // add and edit workflow
     private Alarm newAlarm;
     private Alarm oldAlarm;
     private Alarm deleteAlarm;
     private boolean editAlarm;
-
-    BroadcastReceiver receiver;
-
-    private DatabaseHelper dbHelper;
-    private AlarmManagerHelper amHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alarm_list);
 
+        // recyclerview setup
         recyclerView = (RecyclerView) findViewById(R.id.alarms_recycler_view);
         recyclerView.setHasFixedSize(true);
-
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editAlarm = false;
-                createAlarm(v);
-            }
-        });
-
+        // db and alarmmanager helpers setup
         dbHelper = new DatabaseHelper(getApplicationContext());
         amHelper = new AlarmManagerHelper(this);
 
+        // list adapter setup
         adapter = new AlarmListAdapter(dbHelper.getAll(), new AlarmListAdapter.ViewHolder.IViewHolderClick() {
             @Override
             public void showEditDialog(View caller, int position) {
@@ -78,6 +74,17 @@ public class AlarmList extends AppCompatActivity implements
         });
         recyclerView.setAdapter(adapter);
 
+        // create alarm on button click
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editAlarm = false;
+                createAlarm(v);
+            }
+        });
+
+        // delete on list item swipe
         ItemTouchHelper.SimpleCallback itemTouchCallback = new ItemTouchHelper.SimpleCallback(
                 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -99,6 +106,7 @@ public class AlarmList extends AppCompatActivity implements
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
+        // delete on notification dismiss
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -145,11 +153,15 @@ public class AlarmList extends AppCompatActivity implements
         unregisterReceiver(receiver);
     }
 
+    /*
+    * starts add and edit workflow
+    */
     public void createAlarm(View v) {
+        // create note input dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Note");
         final EditText input = new EditText(this);
-        if (oldAlarm != null) {
+        if (oldAlarm != null) { // if edit, set oldalarm note as default
             input.append(oldAlarm.getNote());
         }
         builder.setView(input);
@@ -211,15 +223,16 @@ public class AlarmList extends AppCompatActivity implements
                 amHelper.cancel(oldAlarm);
                 ((AlarmListAdapter) adapter).remove(oldAlarm);
                 // add new alarm
-                amHelper.set(/*newAlarm.getDatetime()*/ new DateTime().getMillis() + 2000, newAlarm);
+                amHelper.set(newAlarm.getDatetime(), newAlarm);
                 ((AlarmListAdapter) adapter).add(newAlarm);
             } else {
                 // create new alarm
                 dbHelper.add(newAlarm);
-                amHelper.set(/*newAlarm.getDatetime()*/ new DateTime().getMillis() + 2000, newAlarm);
+                amHelper.set(newAlarm.getDatetime(), newAlarm);
                 ((AlarmListAdapter) adapter).add(newAlarm);
             }
         }
+        // clear variables
         oldAlarm = null;
         newAlarm = null;
     }
@@ -232,12 +245,12 @@ public class AlarmList extends AppCompatActivity implements
             Long datetime = bundle.getLong("datetime");
 
             int year, month, day;
-            if (datetime != 0) { // if edit, set oldAlarm's data as default
+            if (datetime != 0) { // if edit, set oldAlarm data as default
                 DateTime dt = new DateTime(datetime);
                 year = dt.getYear();
                 month = dt.getMonthOfYear()-1;
                 day = dt.getDayOfMonth();
-            } else {
+            } else { // otherwise now
                 final Calendar c = Calendar.getInstance();
                 year = c.get(Calendar.YEAR);
                 month = c.get(Calendar.MONTH);
@@ -256,11 +269,11 @@ public class AlarmList extends AppCompatActivity implements
             Long datetime = bundle.getLong("datetime");
 
             int hour, minute;
-            if (datetime != 0) { // if edit, set oldAlarm's data as default
+            if (datetime != 0) { // if edit, set oldAlarm data as default
                 DateTime dt = new DateTime(datetime);
                 hour = dt.getHourOfDay();
                 minute = dt.getMinuteOfHour();
-            } else {
+            } else { // otherwise now
                 final Calendar c = Calendar.getInstance();
                 hour = c.get(Calendar.HOUR_OF_DAY);
                 minute = c.get(Calendar.MINUTE);

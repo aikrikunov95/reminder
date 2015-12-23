@@ -27,22 +27,6 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
             v.setOnClickListener(this);
         }
 
-        public TextView getNote() {
-            return note;
-        }
-
-        public void setNote(TextView note) {
-            this.note = note;
-        }
-
-        public TextView getDate() {
-            return date;
-        }
-
-        public void setDate(TextView date) {
-            this.date = date;
-        }
-
         @Override
         public void onClick(View v) {
             clickListener.showEditDialog(v, getLayoutPosition());
@@ -116,7 +100,10 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
         return alarms.size();
     }
 
-    // region AlarmList Helpers
+    /*
+    * alarmlist helper methods
+    */
+
     public Alarm get(int position) {
         return alarms.get(position);
     }
