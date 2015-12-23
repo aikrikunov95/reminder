@@ -32,7 +32,6 @@ public class AlarmManagerHelper {
     private PendingIntent getPendingIntent(Alarm alarm) {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra(Alarm.TAG, alarm);
-        return PendingIntent.getBroadcast(context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getBroadcast(context, alarm.getNote().hashCode(), intent, 0);
     }
 }

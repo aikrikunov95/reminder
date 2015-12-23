@@ -38,9 +38,7 @@ public class NotificationService extends IntentService {
 
             new CountDownTimer(TIMEOUT_TIME, TIMEOUT_TIME) {
                 @Override
-                public void onTick(long millisUntilFinished) {
-
-                }
+                public void onTick(long millisUntilFinished) {}
 
                 @Override
                 public void onFinish() {

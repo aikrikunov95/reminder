@@ -217,18 +217,20 @@ public class AlarmList extends AppCompatActivity implements
 
         if (dt.isAfterNow()) {
             if (editAlarm) {
+                newAlarm.setDatetime( new DateTime().getMillis() + 10000);
                 // update db
                 dbHelper.update(oldAlarm, newAlarm);
                 // remove old alarm
                 amHelper.cancel(oldAlarm);
                 ((AlarmListAdapter) adapter).remove(oldAlarm);
                 // add new alarm
-                amHelper.set(newAlarm.getDatetime(), newAlarm);
+                amHelper.set(newAlarm);
                 ((AlarmListAdapter) adapter).add(newAlarm);
             } else {
                 // create new alarm
+                newAlarm.setDatetime(new DateTime().getMillis() + 10000);
                 dbHelper.add(newAlarm);
-                amHelper.set(newAlarm.getDatetime(), newAlarm);
+                amHelper.set(newAlarm);
                 ((AlarmListAdapter) adapter).add(newAlarm);
             }
         }
