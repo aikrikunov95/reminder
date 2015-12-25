@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 public class Alarm implements Parcelable {
 
-    public static final String TAG = "alarm";
+    public static final String ALARM_EXTRA_NAME = "com.datasorcerers.reminder.Alarm.ALARM_EXTRA_NAME";
 
     private String note;
     private long datetime;

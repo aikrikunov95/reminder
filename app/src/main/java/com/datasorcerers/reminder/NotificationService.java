@@ -9,15 +9,13 @@ import android.content.Intent;
 import android.os.CountDownTimer;
 import android.os.Looper;
 
-import org.joda.time.DateTime;
-
 public class NotificationService extends IntentService {
-    private final static long TIMEOUT_TIME = 3 * 1000;
-    private final static long SNOOZE_TIME = 5 * 1000;
+    public static final String ACTION_EXTRA_NAME = "com.datasorcerers.reminder.NotificationService.ACTION_EXTRA_NAME";
+    private final static long TIMEOUT_TIME_SECONDS = 3;
+    private final static long SNOOZE_TIME_SECONDS = 5;
 
-    private final static String START_TAG = "start";
-
-    private static boolean notificationCanceled;
+    public final static int ACTION_ISSUE = 1;
+    public final static int ACTION_CANCEL = 2;
 
     public NotificationService() {
         super("NotificationService");
@@ -25,55 +23,71 @@ public class NotificationService extends IntentService {
 
     @Override
     protected void onHandleIntent(final Intent intent) {
-        final AlarmManagerHelper amHelper = new AlarmManagerHelper(this);
         final DatabaseHelper dbHelper = new DatabaseHelper(this);
         final Context context = getApplicationContext();
-        final Alarm alarm = intent.getParcelableExtra(Alarm.TAG);
+        final Alarm alarm = intent.getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
 
-        if (intent.getBooleanExtra(START_TAG, true)) {
-            AlarmKlaxon.start(context);
-            AlarmWakeLock.acquire(context);
-            issueNotification(context, intent);
-            notificationCanceled = false;
+        int action = intent.getIntExtra(ACTION_EXTRA_NAME, 0);
+        switch (action) {
+            case ACTION_ISSUE:
+                AlarmKlaxon.start(context);
+                AlarmWakeLock.acquire(context);
+                issueNotification(context, intent);
 
-            new CountDownTimer(TIMEOUT_TIME, TIMEOUT_TIME) {
-                @Override
-                public void onTick(long millisUntilFinished) {}
-
-                @Override
-                public void onFinish() {
-                    Looper.myLooper().quit();
-                    AlarmKlaxon.stop();
-                    AlarmWakeLock.release();
-                    if (!notificationCanceled) {
-                        amHelper.set(new DateTime().getMillis() + SNOOZE_TIME, alarm);
+                new CountDownTimer(TIMEOUT_TIME_SECONDS * 1000, TIMEOUT_TIME_SECONDS * 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
                     }
-                }
-            }.start();
-            Looper.loop();
-        } else {
-            AlarmKlaxon.stop();
-            AlarmWakeLock.release();
-            notificationCanceled = true;
-            amHelper.cancel(alarm);
-            dbHelper.delete(alarm);
 
-            Intent updateUIIntent = new Intent("updateUI");
-            updateUIIntent.putExtra(Alarm.TAG, alarm);
-            sendBroadcast(updateUIIntent);
+                    @Override
+                    public void onFinish() {
+                        AlarmKlaxon.stop();
+                        AlarmWakeLock.release();
+                    }
+                }.start();
+                new CountDownTimer(TIMEOUT_TIME_SECONDS * 1000 + SNOOZE_TIME_SECONDS * 1000,
+                        TIMEOUT_TIME_SECONDS * 1000 + SNOOZE_TIME_SECONDS * 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        Intent notificationServiceIntent = new Intent(context, NotificationService.class);
+                        notificationServiceIntent.putExtra(ACTION_EXTRA_NAME, ACTION_ISSUE);
+                        notificationServiceIntent.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
+                        context.startService(notificationServiceIntent);
+                    }
+                }.start();
+                Looper.loop();
+                break;
+            case ACTION_CANCEL:
+                AlarmKlaxon.stop();
+                AlarmWakeLock.release();
+                dbHelper.delete(alarm);
+
+                Intent updateUIIntent = new Intent(AlarmList.UPDATE_UI_ACTION);
+                updateUIIntent.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
+                sendBroadcast(updateUIIntent);
+
+                Intent pollQueueIntent = new Intent(context, AlarmReceiver.class);
+                pollQueueIntent.putExtra(AlarmReceiver.ACTION_EXTRA_NAME, AlarmReceiver.ACTION_POLL);
+                sendBroadcast(pollQueueIntent);
+                break;
         }
     }
 
     private void issueNotification(Context context, Intent intent) {
         NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Alarm alarm = intent.getParcelableExtra(Alarm.TAG);
+        Alarm alarm = intent.getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
 
         Intent deleteIntent = new Intent(context, NotificationService.class);
-        deleteIntent.putExtra(START_TAG, false);
-        deleteIntent.putExtra(Alarm.TAG, alarm);
-        PendingIntent delete = PendingIntent.getService(context, 0, deleteIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        deleteIntent.putExtra(ACTION_EXTRA_NAME, ACTION_CANCEL);
+        deleteIntent.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
+        final int id = (int) System.currentTimeMillis();
+        PendingIntent delete = PendingIntent.
+                getService(context, id, deleteIntent, PendingIntent.FLAG_ONE_SHOT);
 
         Notification.Builder nb = new Notification.Builder(context);
         nb

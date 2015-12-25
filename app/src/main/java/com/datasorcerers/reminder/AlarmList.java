@@ -31,6 +31,11 @@ import java.util.Calendar;
 public class AlarmList extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
 
+    public static final String UPDATE_UI_ACTION = "com.datasorcerers.reminder.AlarmList.UPDATE_UI";
+    private static final String PICKERS_DATETIME_BUNDLE_NAME = "com.datasorcerers.reminder.AlarmList.PICKERS_DATETIME_BUNDLE_NAME";
+    private static final String DATEPICKER_TAG = "com.datasorcerers.reminder.AlarmList.DATEPICKER_TAG";
+    private static final String TIMEPICKER_TAG = "com.datasorcerers.reminder.AlarmList.DATEPICKER_TAG";
+
     // UI
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -110,13 +115,13 @@ public class AlarmList extends AppCompatActivity implements
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                deleteAlarm = intent.getParcelableExtra(Alarm.TAG);
+                deleteAlarm = intent.getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
                 ((AlarmListAdapter) adapter).remove(deleteAlarm);
                 deleteAlarm = null;
             }
         };
         IntentFilter filter = new IntentFilter();
-        filter.addAction("updateUI");
+        filter.addAction(UPDATE_UI_ACTION);
         registerReceiver(receiver, filter);
     }
 
@@ -173,12 +178,12 @@ public class AlarmList extends AppCompatActivity implements
                 // Create a bundle to pass the date
                 Bundle bundle = new Bundle();
                 if (oldAlarm != null) {
-                    bundle.putLong("datetime", oldAlarm.getDatetime());
+                    bundle.putLong(PICKERS_DATETIME_BUNDLE_NAME, oldAlarm.getDatetime());
                 }
                 DialogFragment newFragment = new DatePickerFragment();
                 // Pass bundle to picker
                 newFragment.setArguments(bundle);
-                newFragment.show(getSupportFragmentManager(), "datePicker");
+                newFragment.show(getSupportFragmentManager(), DATEPICKER_TAG);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -198,12 +203,12 @@ public class AlarmList extends AppCompatActivity implements
         // Create a bundle to pass the date
         Bundle bundle = new Bundle();
         if (oldAlarm != null) {
-            bundle.putLong("datetime", oldAlarm.getDatetime());
+            bundle.putLong(PICKERS_DATETIME_BUNDLE_NAME, oldAlarm.getDatetime());
         }
         // Pass bundle to picker
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.setArguments(bundle);
-        newFragment.show(getSupportFragmentManager(), "timePicker");
+        newFragment.show(getSupportFragmentManager(), TIMEPICKER_TAG);
     }
 
     @Override
@@ -213,24 +218,23 @@ public class AlarmList extends AppCompatActivity implements
                 .withMinuteOfHour(minute)
                 .withSecondOfMinute(0)
                 .withMillisOfSecond(0);
+        dt = new DateTime().plus(2000); // TODO REMOVE!!!
         newAlarm.setDatetime(dt.getMillis());
 
         if (dt.isAfterNow()) {
             if (editAlarm) {
-                newAlarm.setDatetime( new DateTime().getMillis() + 10000);
                 // update db
                 dbHelper.update(oldAlarm, newAlarm);
                 // remove old alarm
                 amHelper.cancel(oldAlarm);
                 ((AlarmListAdapter) adapter).remove(oldAlarm);
                 // add new alarm
-                amHelper.set(newAlarm);
+                amHelper.set(newAlarm, AlarmReceiver.ACTION_ADD);
                 ((AlarmListAdapter) adapter).add(newAlarm);
             } else {
                 // create new alarm
-                newAlarm.setDatetime(new DateTime().getMillis() + 10000);
                 dbHelper.add(newAlarm);
-                amHelper.set(newAlarm);
+                amHelper.set(newAlarm, AlarmReceiver.ACTION_ADD);
                 ((AlarmListAdapter) adapter).add(newAlarm);
             }
         }
@@ -244,7 +248,7 @@ public class AlarmList extends AppCompatActivity implements
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle bundle = this.getArguments();
-            Long datetime = bundle.getLong("datetime");
+            Long datetime = bundle.getLong(PICKERS_DATETIME_BUNDLE_NAME);
 
             int year, month, day;
             if (datetime != 0) { // if edit, set oldAlarm data as default
@@ -268,7 +272,7 @@ public class AlarmList extends AppCompatActivity implements
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle bundle = this.getArguments();
-            Long datetime = bundle.getLong("datetime");
+            Long datetime = bundle.getLong(PICKERS_DATETIME_BUNDLE_NAME);
 
             int hour, minute;
             if (datetime != 0) { // if edit, set oldAlarm data as default
