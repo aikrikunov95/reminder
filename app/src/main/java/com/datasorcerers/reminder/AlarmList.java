@@ -32,7 +32,7 @@ public class AlarmList extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
 
     public static final String UPDATE_UI_ACTION = "com.datasorcerers.reminder.AlarmList.UPDATE_UI";
-    private static final String PICKERS_DATETIME_BUNDLE_NAME = "com.datasorcerers.reminder.AlarmList.PICKERS_DATETIME_BUNDLE_NAME";
+    private static final String PICKERS_BUNDLE_NAME = "com.datasorcerers.reminder.AlarmList.PICKERS_BUNDLE_NAME";
     private static final String DATEPICKER_TAG = "com.datasorcerers.reminder.AlarmList.DATEPICKER_TAG";
     private static final String TIMEPICKER_TAG = "com.datasorcerers.reminder.AlarmList.DATEPICKER_TAG";
 
@@ -68,7 +68,7 @@ public class AlarmList extends AppCompatActivity implements
         dbHelper = new DatabaseHelper(getApplicationContext());
         amHelper = new AlarmManagerHelper(this);
 
-        // list adapter setup
+        // list adapter, edit click listener setup
         adapter = new AlarmListAdapter(dbHelper.getAll(), new AlarmListAdapter.ViewHolder.IViewHolderClick() {
             @Override
             public void showEditDialog(View caller, int position) {
@@ -102,7 +102,7 @@ public class AlarmList extends AppCompatActivity implements
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = viewHolder.getAdapterPosition();
                 deleteAlarm = ((AlarmListAdapter) adapter).get(position);
-                dbHelper.delete(deleteAlarm);
+                dbHelper.delete(deleteAlarm.getId());
                 amHelper.cancel(deleteAlarm);
                 ((AlarmListAdapter) adapter).removeItemAt(position); // TODO cancel action
                 deleteAlarm = null;
@@ -178,7 +178,7 @@ public class AlarmList extends AppCompatActivity implements
                 // Create a bundle to pass the date
                 Bundle bundle = new Bundle();
                 if (oldAlarm != null) {
-                    bundle.putLong(PICKERS_DATETIME_BUNDLE_NAME, oldAlarm.getDatetime());
+                    bundle.putLong(PICKERS_BUNDLE_NAME, oldAlarm.getDatetime());
                 }
                 DialogFragment newFragment = new DatePickerFragment();
                 // Pass bundle to picker
@@ -203,7 +203,7 @@ public class AlarmList extends AppCompatActivity implements
         // Create a bundle to pass the date
         Bundle bundle = new Bundle();
         if (oldAlarm != null) {
-            bundle.putLong(PICKERS_DATETIME_BUNDLE_NAME, oldAlarm.getDatetime());
+            bundle.putLong(PICKERS_BUNDLE_NAME, oldAlarm.getDatetime());
         }
         // Pass bundle to picker
         DialogFragment newFragment = new TimePickerFragment();
@@ -218,7 +218,7 @@ public class AlarmList extends AppCompatActivity implements
                 .withMinuteOfHour(minute)
                 .withSecondOfMinute(0)
                 .withMillisOfSecond(0);
-        //dt = new DateTime().plus(1000); // TODO REMOVE!!!
+        //dt = new DateTime().plus(10000); // TODO REMOVE!!!
         newAlarm.setDatetime(dt.getMillis());
 
         if (dt.isAfterNow()) {
@@ -248,7 +248,7 @@ public class AlarmList extends AppCompatActivity implements
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle bundle = this.getArguments();
-            Long datetime = bundle.getLong(PICKERS_DATETIME_BUNDLE_NAME);
+            Long datetime = bundle.getLong(PICKERS_BUNDLE_NAME);
 
             int year, month, day;
             if (datetime != 0) { // if edit, set oldAlarm data as default
@@ -272,7 +272,7 @@ public class AlarmList extends AppCompatActivity implements
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle bundle = this.getArguments();
-            Long datetime = bundle.getLong(PICKERS_DATETIME_BUNDLE_NAME);
+            Long datetime = bundle.getLong(PICKERS_BUNDLE_NAME);
 
             int hour, minute;
             if (datetime != 0) { // if edit, set oldAlarm data as default

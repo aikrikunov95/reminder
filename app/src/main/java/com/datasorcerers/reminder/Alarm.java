@@ -7,17 +7,18 @@ public class Alarm implements Parcelable {
 
     public static final String ALARM_EXTRA_NAME = "com.datasorcerers.reminder.Alarm.ALARM_EXTRA_NAME";
 
+    private int id;
     private String note;
     private long datetime;
 
-    public Alarm() {
-        this.note = "";
-        this.datetime = 0;
-    }
-
-    public Alarm(String note, long datetime) {
+    public Alarm(int id, String note, long datetime) {
+        this.id = id;
         this.note = note;
         this.datetime = datetime;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getNote() {
@@ -44,6 +45,7 @@ public class Alarm implements Parcelable {
     // Parcelable stuff
 
     private Alarm(Parcel in) {
+        this.id = in.readInt();
         this.note = in.readString();
         this.datetime = in.readLong();
     }
@@ -55,6 +57,7 @@ public class Alarm implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(note);
         dest.writeLong(datetime);
     }

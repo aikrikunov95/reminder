@@ -22,7 +22,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_ALARMS = "alarms";
 
     // Alarms Table Columns names
-    private static final String KEY_NOTE= "note";
+    private static final String KEY_ID = "_id";
+    private static final String KEY_NOTE = "note";
     private static final String KEY_DATETIME = "datetime";
 
     public DatabaseHelper(Context context) {
@@ -32,9 +33,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_ALARMS_TABLE = "CREATE TABLE " + TABLE_ALARMS + "("
-                + KEY_NOTE + " TEXT," + KEY_DATETIME + " INT,"
-                + "UNIQUE(" + KEY_NOTE + ", " + KEY_DATETIME + ") ON CONFLICT IGNORE)";
+        String CREATE_ALARMS_TABLE = "CREATE TABLE " + TABLE_ALARMS + "(" +
+                KEY_ID + " INT PRIMARY KEY," +
+                KEY_NOTE + " TEXT," +
+                KEY_DATETIME + " INT," +
+                "UNIQUE(" + KEY_NOTE + ", " + KEY_DATETIME + ") ON CONFLICT IGNORE)";
         db.execSQL(CREATE_ALARMS_TABLE);
     }
 
@@ -48,12 +51,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void add(Alarm alarm) {
+    public void add(String note, long datetime) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_NOTE, alarm.getNote());
-        values.put(KEY_DATETIME, alarm.getDatetime());
+        values.put(KEY_NOTE, note);
+        values.put(KEY_DATETIME, datetime);
 
         db.insert(TABLE_ALARMS, null, values);
         db.close();
@@ -68,9 +71,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                String note = cursor.getString(0);
-                long date = cursor.getLong(1);
-                Alarm alarm = new Alarm(note, date);
+                int id = cursor.getInt(0);
+                String note = cursor.getString(1);
+                long date = cursor.getLong(2);
+                Alarm alarm = new Alarm(id, note, date);
                 alarms.add(alarm);
             } while (cursor.moveToNext());
         }
@@ -79,21 +83,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return alarms;
     }
 
-    public int update(Alarm oldAlarm, Alarm newAlarm) {
+    public int update(Alarm alarm) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_NOTE, newAlarm.getNote());
-        values.put(KEY_DATETIME, newAlarm.getDatetime());
+        values.put(KEY_NOTE, alarm.getNote());
+        values.put(KEY_DATETIME, alarm.getDatetime());
 
-        return db.update(TABLE_ALARMS, values, KEY_NOTE + " = ? AND " + KEY_DATETIME +  " = ?",
-                new String[] { String.valueOf(oldAlarm.getNote()), String.valueOf(oldAlarm.getDatetime()) });
+        return db.update(TABLE_ALARMS, values, KEY_ID + " = ?",
+                new String[] { String.valueOf(alarm.getId()) });
     }
 
     public void delete(Alarm alarm) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_ALARMS, KEY_NOTE + " = ? AND " + KEY_DATETIME + " = ?",
-                new String[]{String.valueOf(alarm.getNote()), String.valueOf(alarm.getDatetime())});
+        db.delete(TABLE_ALARMS, KEY_ID + " = ?",
+                new String[]{ String.valueOf(alarm.getId()) });
         db.close();
     }
 

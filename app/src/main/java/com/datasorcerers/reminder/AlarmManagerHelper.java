@@ -6,11 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class AlarmManagerHelper {
     private Context context;
     private AlarmManager am;
-    private static HashMap<Alarm, Integer> ids = new HashMap<>(); // TODO REMAKE
+    private static Map<Alarm, Integer> ids = new HashMap<>();
 
     public AlarmManagerHelper(Context context) {
         this.context = context;

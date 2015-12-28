@@ -73,9 +73,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
 
             @Override
             public boolean areItemsTheSame(Alarm item1, Alarm item2) {
-                boolean notesSame = item1.getNote().equals(item2.getNote());
-                boolean datesSame = item1.getDatetime() == item2.getDatetime();
-                return notesSame && datesSame;
+                return item1.getId() == item2.getId();
             }
         });
         this.alarms.addAll(alarms);
