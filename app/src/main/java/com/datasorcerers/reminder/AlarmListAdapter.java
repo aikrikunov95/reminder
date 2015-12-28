@@ -1,7 +1,9 @@
 package com.datasorcerers.reminder;
 
+import android.content.Context;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,7 +94,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.note.setText(alarms.get(position).getNote());
-        holder.date.setText(formatDate(alarms.get(position).getDatetime()));
+        holder.date.setText(formatDate(holder.itemView.getContext(), alarms.get(position).getDatetime()));
     }
 
     @Override
@@ -144,8 +146,8 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
         alarms.endBatchedUpdates();
     }
 
-    private String formatDate(long data) {
+    private String formatDate(Context context, long data) {
         DateTime dt = new DateTime(data);
-        return dt.toString();
+        return DateUtils.getRelativeDateTimeString(context, dt.getMillis(), 0, DateUtils.WEEK_IN_MILLIS, 0).toString();
     }
 }

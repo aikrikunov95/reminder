@@ -5,9 +5,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import java.util.HashMap;
+
 public class AlarmManagerHelper {
     private Context context;
     private AlarmManager am;
+    private static HashMap<Alarm, Integer> ids = new HashMap<>();
 
     public AlarmManagerHelper(Context context) {
         this.context = context;
@@ -27,6 +30,7 @@ public class AlarmManagerHelper {
     public void cancel(Alarm alarm) {
         PendingIntent pendingIntent = getPendingIntent(alarm, 0);
         am.cancel(pendingIntent);
+        ids.remove(alarm);
     }
 
     private PendingIntent getPendingIntent(Alarm alarm, int action) {
@@ -34,6 +38,9 @@ public class AlarmManagerHelper {
         intent.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
         intent.putExtra(AlarmReceiver.ACTION_EXTRA_NAME, action);
         final int id = (int) System.currentTimeMillis();
-        return PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_ONE_SHOT);
+        if (action == AlarmReceiver.ACTION_ADD) {
+            ids.put(alarm, id);
+        }
+        return PendingIntent.getBroadcast(context, ids.get(alarm), intent, PendingIntent.FLAG_ONE_SHOT);
     }
 }
