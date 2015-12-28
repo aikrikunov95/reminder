@@ -4,33 +4,29 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 public class AlarmReceiver extends BroadcastReceiver {
     public static final String ACTION_EXTRA_NAME = "com.datasorcerers.reminder.AlarmReceiver.ACTION_EXTRA_NAME";
     public static final int ACTION_ADD = 1;
     public static final int ACTION_POLL = 2;
 
-    private static Queue<Intent> intentQueue = new LinkedList<>();
-
     @Override
     public void onReceive(Context context, Intent intent) {
+        AlarmQueue alarmQueue = AlarmQueue.getInstance();
         int action = intent.getIntExtra(ACTION_EXTRA_NAME, 0);
 
         switch (action) {
             case ACTION_ADD:
-                if (intentQueue.isEmpty()) {
+                if (alarmQueue.isEmpty()) {
                     startNotificationService(context, intent);
                 }
-                intentQueue.add(intent);
+                alarmQueue.add(intent);
                 break;
             case ACTION_POLL:
-                if (!intentQueue.isEmpty()) {
-                    intentQueue.poll();
+                if (!alarmQueue.isEmpty()) {
+                    alarmQueue.poll();
                 }
-                if (!intentQueue.isEmpty()) {
-                    startNotificationService(context, intentQueue.peek());
+                if (!alarmQueue.isEmpty()) {
+                    startNotificationService(context, alarmQueue.peek());
                 }
                 break;
         }

@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class AlarmManagerHelper {
     private Context context;
     private AlarmManager am;
-    private static HashMap<Alarm, Integer> ids = new HashMap<>();
+    private static HashMap<Alarm, Integer> ids = new HashMap<>(); // TODO REMAKE
 
     public AlarmManagerHelper(Context context) {
         this.context = context;

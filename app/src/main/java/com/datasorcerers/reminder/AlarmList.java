@@ -218,7 +218,7 @@ public class AlarmList extends AppCompatActivity implements
                 .withMinuteOfHour(minute)
                 .withSecondOfMinute(0)
                 .withMillisOfSecond(0);
-        dt = new DateTime().plus(2000); // TODO REMOVE!!!
+        //dt = new DateTime().plus(1000); // TODO REMOVE!!!
         newAlarm.setDatetime(dt.getMillis());
 
         if (dt.isAfterNow()) {
