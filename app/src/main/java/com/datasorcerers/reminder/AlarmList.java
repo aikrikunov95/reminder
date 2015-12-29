@@ -102,7 +102,7 @@ public class AlarmList extends AppCompatActivity implements
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = viewHolder.getAdapterPosition();
                 deleteAlarm = ((AlarmListAdapter) adapter).get(position);
-                dbHelper.delete(deleteAlarm.getId());
+                dbHelper.delete(deleteAlarm);
                 amHelper.cancel(deleteAlarm);
                 ((AlarmListAdapter) adapter).removeItemAt(position); // TODO cancel action
                 deleteAlarm = null;
@@ -173,7 +173,7 @@ public class AlarmList extends AppCompatActivity implements
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                newAlarm = new Alarm();
+                //newAlarm = new Alarm();
                 newAlarm.setNote(input.getText().toString());
                 // Create a bundle to pass the date
                 Bundle bundle = new Bundle();
@@ -224,7 +224,7 @@ public class AlarmList extends AppCompatActivity implements
         if (dt.isAfterNow()) {
             if (editAlarm) {
                 // update db
-                dbHelper.update(oldAlarm, newAlarm);
+                dbHelper.update(newAlarm);
                 // remove old alarm
                 amHelper.cancel(oldAlarm);
                 ((AlarmListAdapter) adapter).remove(oldAlarm);
@@ -233,7 +233,7 @@ public class AlarmList extends AppCompatActivity implements
                 ((AlarmListAdapter) adapter).add(newAlarm);
             } else {
                 // create new alarm
-                dbHelper.add(newAlarm);
+                dbHelper.add(newAlarm.getNote(), newAlarm.getDatetime());
                 amHelper.set(newAlarm, AlarmReceiver.ACTION_ADD);
                 ((AlarmListAdapter) adapter).add(newAlarm);
             }

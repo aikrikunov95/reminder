@@ -8,43 +8,40 @@
         android:layout_height="wrap_content"
         android:text="Note"
         android:id="@+id/note_label"
-        android:layout_alignBaseline="@id/note" />
+        android:layout_alignBaseline="@+id/note" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/note"
-        android:layout_toEndOf="@id/note_label"/>
+        android:layout_toEndOf="@+id/note_label"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Date"
         android:id="@+id/date_label"
-        android:layout_alignBaseline="@id/date"/>
+        android:layout_alignBaseline="@+id/date"/>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="date"
         android:id="@+id/date"
-        android:layout_toEndOf="@id/date_label"
-        android:layout_below="@id/note"/>
+        android:layout_toEndOf="@+id/date_label"
+        android:layout_below="@+id/note"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Time"
         android:id="@+id/time_label"
-        android:layout_alignBaseline="@id/time"/>
+        android:layout_alignBaseline="@+id/time"/>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="time"
         android:id="@+id/time"
-        android:layout_toEndOf="@id/time_label"
-        android:layout_below="@id/date"/>
-
+        android:layout_toEndOf="@+id/time_label"
+        android:layout_below="@+id/date"/>
 
 </RelativeLayout>
