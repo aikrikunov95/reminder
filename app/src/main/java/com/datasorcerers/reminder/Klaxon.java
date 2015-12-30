@@ -6,7 +6,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
 
-public class AlarmKlaxon {
+public class Klaxon {
 
     private static Ringtone ringtone;
     private static Vibrator vibrator;

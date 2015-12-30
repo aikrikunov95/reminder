@@ -11,7 +11,7 @@ import org.joda.time.DateTime;
 
 import java.util.List;
 
-public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.ViewHolder> {
+public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private SortedList<Alarm> alarms;
     private ViewHolder.IViewHolderClick listener;
 
@@ -38,7 +38,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
 
     }
 
-    public AlarmListAdapter(List<Alarm> alarms, ViewHolder.IViewHolderClick listener) {
+    public ListAdapter(List<Alarm> alarms, ViewHolder.IViewHolderClick listener) {
         this.listener = listener;
         this.alarms = new SortedList<>(Alarm.class, new SortedList.Callback<Alarm>() {
             @Override
@@ -80,9 +80,9 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmListAdapter.View
     }
 
     @Override
-    public AlarmListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.alarm_list_item, parent, false);
+                .inflate(R.layout.list_item, parent, false);
 
         return new ViewHolder(v, listener);
     }

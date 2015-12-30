@@ -3,7 +3,7 @@ package com.datasorcerers.reminder;
 import android.content.Context;
 import android.os.PowerManager;
 
-public class AlarmWakeLock {
+public class WakeLock {
 
     private static PowerManager.WakeLock wakeLock;
 
@@ -12,7 +12,7 @@ public class AlarmWakeLock {
         return pm.newWakeLock(
                 (PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
                         PowerManager.FULL_WAKE_LOCK |
-                        PowerManager.ACQUIRE_CAUSES_WAKEUP), "AlarmWakeLock");
+                        PowerManager.ACQUIRE_CAUSES_WAKEUP), "WakeLock");
     }
 
     public static void acquire(Context context) {
