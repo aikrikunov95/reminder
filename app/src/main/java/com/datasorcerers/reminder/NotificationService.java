@@ -79,10 +79,6 @@ public class NotificationService extends IntentService {
     }
 
     private void issue(Context context, List<Alarm> notified) {
-        NotificationManager nm = (NotificationManager)
-                context.getSystemService(Context.NOTIFICATION_SERVICE);
-        DatabaseHelper db = new DatabaseHelper(context);
-
         // make delete intent
         Intent deleteIntent = new Intent(context, NotificationService.class);
         deleteIntent.setAction(ACTION_STOP);
@@ -93,6 +89,7 @@ public class NotificationService extends IntentService {
         // builder
         Notification.Builder nb = new Notification.Builder(context);
 
+        // content
         // if one alarm notified just show its note
         if (notified.size() == 1) {
             nb.setContentText(notified.get(0).getNote());
@@ -107,7 +104,7 @@ public class NotificationService extends IntentService {
             nb.setContentText(notified.size() + " alarms went off");
         }
 
-        // set remained stuff
+        // set remaining stuff
         nb.setSmallIcon(R.mipmap.ic_launcher) // TODO icon
                 .setContentTitle("Reminder")
                 .setDeleteIntent(delete)
@@ -115,6 +112,8 @@ public class NotificationService extends IntentService {
                 .setVibrate(new long[0]);
 
         //issue
+        NotificationManager nm = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(1, nb.build()); // TODO hardcode
     }
 }
