@@ -9,10 +9,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import org.joda.time.DateTime;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -23,6 +26,7 @@ public class ListActivity extends AppCompatActivity {
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private FloatingActionButton fab;
+    private Toolbar toolbar;
 
     // service
     private BroadcastReceiver receiver;
@@ -36,6 +40,9 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar_top);
+        setSupportActionBar(toolbar);
+
         // recyclerview setup
         recyclerView = (RecyclerView) findViewById(R.id.alarms_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -47,6 +54,9 @@ public class ListActivity extends AppCompatActivity {
         amHelper = new AlarmManagerHelper(this);
 
         // list adapter, edit click listener setup
+        for (int i = 0; i < 10; i++) {
+            dbHelper.add(String.valueOf(i), new DateTime().getMillis());
+        }
         adapter = new ListAdapter(dbHelper.getAll(), new ListAdapter.ViewHolder.IViewHolderClick() {
             @Override
             public void showEditDialog(View caller, int position) {
