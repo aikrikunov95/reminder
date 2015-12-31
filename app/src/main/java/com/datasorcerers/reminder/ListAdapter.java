@@ -68,6 +68,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
             @Override
             public boolean areContentsTheSame(Alarm oldItem, Alarm newItem) {
+                /*boolean idsAreSame = oldItem.getId() == newItem.getId();
+                boolean notesAreSame = oldItem.getNote().equals(newItem.getNote());
+                boolean datesAreSame = oldItem.getDatetime() == newItem.getDatetime();
+                return idsAreSame && notesAreSame && datesAreSame;*/
                 return areItemsTheSame(oldItem, newItem);
             }
 
@@ -118,6 +122,20 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         alarms.updateItemAt(index, item);
     }
 
+    public int indexOfId(int id) {
+        for (int i = 0; i < alarms.size(); i++) {
+            if (id == alarms.get(i).getId()) {
+                return indexOf(alarms.get(i));
+            }
+        }
+        return -1;
+    }
+
+    public void updateItem(Alarm alarm) {
+        updateItemAt(indexOfId(alarm.getId()), alarm);
+
+    }
+
     public void addAll(List<Alarm> items) {
         alarms.beginBatchedUpdates();
         for (Alarm item : items) {
@@ -127,7 +145,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     }
 
     public boolean remove(Alarm item) {
-        return alarms.remove(item);
+        int id = indexOfId(item.getId());
+        if (id >= 0) {
+            removeItemAt(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public Alarm removeItemAt(int index) {

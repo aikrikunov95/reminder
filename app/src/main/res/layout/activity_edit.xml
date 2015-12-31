@@ -10,7 +10,14 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:background="@color/colorPrimary"
-            app:titleTextColor="#fff"/>
+            app:titleTextColor="#fff">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ready_button"
+                android:text="Create"
+                android:layout_gravity="end"/>
+        </android.support.v7.widget.Toolbar>
 
         <include layout="@layout/content_edit" />
 

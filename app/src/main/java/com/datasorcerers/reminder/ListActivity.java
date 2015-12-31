@@ -15,9 +15,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
+
 public class ListActivity extends AppCompatActivity {
 
-    public static final String UPDATE_UI_ACTION = "com.datasorcerers.reminder.ListActivity.UPDATE_UI";
+    public static final String UPDATE_LIST_ACTION_DELETE_NOTIFIED = "com.datasorcerers.reminder.ListActivity.DELETE_NOTIFIED";
+    public static final String UPDATE_LIST_ACTION_UPDATE_ALARM = "com.datasorcerers.reminder.ListActivity.UPDATE_ALARM";
+    public static final String UPDATE_LIST_ACTION_CREATE_ALARM = "com.datasorcerers.reminder.ListActivity.CREATE_ALARM";
 
     // UI
     private RecyclerView recyclerView;
@@ -55,7 +59,9 @@ public class ListActivity extends AppCompatActivity {
         adapter = new ListAdapter(db.getAll(), new ListAdapter.ViewHolder.IViewHolderClick() {
             @Override
             public void showEditDialog(View caller, int position) {
-                // TODO start alarm edit activity
+                Intent i = new Intent(getApplicationContext(), EditActivity.class);
+                i.putExtra(Alarm.ALARM_EXTRA_NAME, ((ListAdapter) adapter).get(position));
+                startActivity(i);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -65,7 +71,8 @@ public class ListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO start alarm edit activity
+                Intent i = new Intent(getApplicationContext(), EditActivity.class);
+                startActivity(i);
             }
         });
 
@@ -96,11 +103,35 @@ public class ListActivity extends AppCompatActivity {
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // TODO delete dismissed alarms
+                String action = intent.getAction();
+                Alarm alarm = intent.getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
+                switch (action) {
+                    case UPDATE_LIST_ACTION_DELETE_NOTIFIED:
+                        ArrayList<Alarm> notified = (ArrayList<Alarm>) db.getAllNotified();
+                        for (int i = 0; i < notified.size(); i++) {
+                            deleteAlarm = notified.get(i);
+                            db.delete(deleteAlarm);
+                            ((ListAdapter) adapter).remove(deleteAlarm);
+                        }
+                        break;
+                    case UPDATE_LIST_ACTION_UPDATE_ALARM:
+                        db.update(alarm);
+                        am.cancel(alarm);
+                        am.set(alarm.getDatetime(), alarm);
+                        ((ListAdapter) adapter).updateItem(alarm);
+                        adapter.notifyDataSetChanged();
+                        break;
+                    case UPDATE_LIST_ACTION_CREATE_ALARM:
+                        am.set(alarm.getDatetime(), alarm);
+                        ((ListAdapter) adapter).add(alarm);
+                        break;
+                }
             }
         };
         IntentFilter filter = new IntentFilter();
-        filter.addAction(UPDATE_UI_ACTION);
+        filter.addAction(UPDATE_LIST_ACTION_DELETE_NOTIFIED);
+        filter.addAction(UPDATE_LIST_ACTION_UPDATE_ALARM);
+        filter.addAction(UPDATE_LIST_ACTION_CREATE_ALARM);
         registerReceiver(receiver, filter);
     }
 

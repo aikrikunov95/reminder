@@ -67,8 +67,8 @@ public class NotificationService extends IntentService {
             case ACTION_STOP:
                 Klaxon.stop();
                 WakeLock.release();
-                db.deleteAllNotified();
-                // update list
+                Intent i = new Intent(ListActivity.UPDATE_LIST_ACTION_DELETE_NOTIFIED);
+                sendBroadcast(i);
                 break;
         }
     }

@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import android.text.format.DateFormat;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
@@ -25,16 +27,21 @@ public class EditActivity extends AppCompatActivity implements
     private EditText date;
     private EditText time;
     private Toolbar toolbar;
+    private Button ready;
     private InputMethodManager imm;
 
     private Alarm alarmToUpdate;
     private String newAlarmNote;
     private DateTime newAlarmDatetime;
 
+    private DatabaseHelper db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
+
+        db = new DatabaseHelper(this);
 
         // Data
 
@@ -112,6 +119,26 @@ public class EditActivity extends AppCompatActivity implements
         });
         String t = newAlarmDatetime.getHourOfDay()+":"+newAlarmDatetime.getMinuteOfHour();
         time.setText(t);
+
+        ready = (Button) findViewById(R.id.ready_button);
+        ready.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newAlarmNote = note.getText().toString();
+                Alarm alarm;
+                Intent i;
+                if (alarmToUpdate != null) {
+                    alarm = new Alarm(alarmToUpdate.getId(), newAlarmNote, newAlarmDatetime.getMillis());
+                    i = new Intent(ListActivity.UPDATE_LIST_ACTION_UPDATE_ALARM);
+                } else {
+                    alarm = db.add(newAlarmNote, newAlarmDatetime.getMillis());
+                    i = new Intent(ListActivity.UPDATE_LIST_ACTION_CREATE_ALARM);
+                }
+                i.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
+                sendBroadcast(i);
+                finish();
+            }
+        });
     }
 
     @Override
@@ -128,7 +155,9 @@ public class EditActivity extends AppCompatActivity implements
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         newAlarmDatetime = newAlarmDatetime
                 .withHourOfDay(hourOfDay)
-                .withMinuteOfHour(minute);
+                .withMinuteOfHour(minute)
+                .withSecondOfMinute(0)
+                .withMillisOfSecond(0);
         String s = hourOfDay+":"+minute;
         time.setText(s);
     }
