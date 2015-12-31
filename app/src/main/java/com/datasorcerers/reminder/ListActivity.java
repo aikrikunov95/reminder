@@ -15,8 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import org.joda.time.DateTime;
-
 public class ListActivity extends AppCompatActivity {
 
     public static final String UPDATE_UI_ACTION = "com.datasorcerers.reminder.ListActivity.UPDATE_UI";
@@ -30,8 +28,8 @@ public class ListActivity extends AppCompatActivity {
 
     // service
     private BroadcastReceiver receiver;
-    private DatabaseHelper dbHelper;
-    private AlarmManagerHelper amHelper;
+    private DatabaseHelper db;
+    private AlarmManagerHelper am;
 
     private Alarm deleteAlarm;
 
@@ -50,14 +48,11 @@ public class ListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         // db and alarmmanager helpers setup
-        dbHelper = new DatabaseHelper(getApplicationContext());
-        amHelper = new AlarmManagerHelper(this);
+        db = new DatabaseHelper(getApplicationContext());
+        am = new AlarmManagerHelper(this);
 
         // list adapter, edit click listener setup
-        for (int i = 0; i < 10; i++) {
-            dbHelper.add(String.valueOf(i), new DateTime().getMillis());
-        }
-        adapter = new ListAdapter(dbHelper.getAll(), new ListAdapter.ViewHolder.IViewHolderClick() {
+        adapter = new ListAdapter(db.getAll(), new ListAdapter.ViewHolder.IViewHolderClick() {
             @Override
             public void showEditDialog(View caller, int position) {
                 // TODO start alarm edit activity
@@ -87,8 +82,8 @@ public class ListActivity extends AppCompatActivity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = viewHolder.getAdapterPosition();
                 deleteAlarm = ((ListAdapter) adapter).get(position);
-                dbHelper.delete(deleteAlarm);
-                amHelper.cancel(deleteAlarm);
+                db.delete(deleteAlarm);
+                am.cancel(deleteAlarm);
                 ((ListAdapter) adapter).removeItemAt(position);
                 deleteAlarm = null;
                 // TODO show cancel action toast

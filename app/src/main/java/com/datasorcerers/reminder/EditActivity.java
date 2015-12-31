@@ -18,8 +18,6 @@ import android.widget.TimePicker;
 
 import org.joda.time.DateTime;
 
-import java.util.Calendar;
-
 public class EditActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
@@ -29,6 +27,7 @@ public class EditActivity extends AppCompatActivity implements
     private Toolbar toolbar;
     private InputMethodManager imm;
 
+    private Alarm alarmToUpdate;
     private String newAlarmNote;
     private DateTime newAlarmDatetime;
 
@@ -37,12 +36,21 @@ public class EditActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
 
+        // Data
+
+        alarmToUpdate = getIntent().getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
+        newAlarmDatetime = new DateTime();
+        if (alarmToUpdate != null) {
+            newAlarmNote = alarmToUpdate.getNote();
+            newAlarmDatetime = new DateTime(alarmToUpdate.getDatetime());
+        }
+
+        // UI
+
         toolbar = (Toolbar) findViewById(R.id.toolbar_top);
         setSupportActionBar(toolbar);
 
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        newAlarmDatetime = new DateTime();
 
         note = (EditText) findViewById(R.id.note);
         note.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -53,6 +61,7 @@ public class EditActivity extends AppCompatActivity implements
                 }
             }
         });
+        note.setText(newAlarmNote);
         note.requestFocus();
 
         date = (EditText) findViewById(R.id.date);
@@ -60,20 +69,47 @@ public class EditActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 imm.hideSoftInputFromWindow(note.getWindowToken(), 0);
+
+                // Prepare default data for picker
+                Bundle bundle = new Bundle();
+                DateTime bundleDatetime = new DateTime();
+                if (alarmToUpdate != null) {
+                    bundleDatetime = new DateTime(alarmToUpdate.getDatetime());
+                }
+                bundle.putInt("year", bundleDatetime.getYear());
+                bundle.putInt("month", bundleDatetime.getMonthOfYear() - 1);
+                bundle.putInt("day", bundleDatetime.getDayOfMonth());
+
                 DialogFragment newFragment = new DatePickerFragment();
+                newFragment.setArguments(bundle);
                 newFragment.show(getSupportFragmentManager(), "datePicker");
             }
         });
+        String d = newAlarmDatetime.getYear() + "." + newAlarmDatetime.getMonthOfYear() + "." + newAlarmDatetime.getDayOfMonth();
+        date.setText(d);
 
         time = (EditText) findViewById(R.id.time);
         time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 imm.hideSoftInputFromWindow(note.getWindowToken(), 0);
+
+                // Prepare data for picker
+                Bundle bundle = new Bundle();
+                DateTime bundleDatetime = new DateTime();
+                if (alarmToUpdate != null) {
+                    bundleDatetime = new DateTime(alarmToUpdate.getDatetime());
+                }
+                bundle.putInt("hour", bundleDatetime.getHourOfDay());
+                bundle.putInt("minute", bundleDatetime.getMinuteOfHour());
+
                 DialogFragment newFragment = new TimePickerFragment();
+                newFragment.setArguments(bundle);
                 newFragment.show(getSupportFragmentManager(), "timePicker");
             }
         });
+        String t = newAlarmDatetime.getHourOfDay()+":"+newAlarmDatetime.getMinuteOfHour();
+        time.setText(t);
     }
 
     @Override
@@ -99,10 +135,11 @@ public class EditActivity extends AppCompatActivity implements
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
+            Bundle bundle = this.getArguments();
+
+            int year = bundle.getInt("year");
+            int month = bundle.getInt("month");
+            int day = bundle.getInt("day");
 
             return new DatePickerDialog(getActivity(), (EditActivity)getActivity(), year, month, day);
         }
@@ -112,9 +149,10 @@ public class EditActivity extends AppCompatActivity implements
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
+            Bundle bundle = this.getArguments();
+
+            int hour = bundle.getInt("hour");
+            int minute = bundle.getInt("minute");
 
             return new TimePickerDialog(getActivity(), (EditActivity)getActivity(), hour, minute,
                     DateFormat.is24HourFormat(getActivity()));
