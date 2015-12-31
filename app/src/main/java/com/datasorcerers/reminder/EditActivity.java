@@ -39,10 +39,12 @@ public class EditActivity extends AppCompatActivity implements
         // Data
 
         alarmToUpdate = getIntent().getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
-        newAlarmDatetime = new DateTime();
         if (alarmToUpdate != null) {
             newAlarmNote = alarmToUpdate.getNote();
             newAlarmDatetime = new DateTime(alarmToUpdate.getDatetime());
+        } else {
+            newAlarmNote = "";
+            newAlarmDatetime = new DateTime();
         }
 
         // UI
