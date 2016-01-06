@@ -13,13 +13,13 @@ import java.util.List;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private SortedList<Alarm> alarms;
-    private ViewHolder.IViewHolderClick listener;
+    private ViewHolder.AlarmClickListener listener;
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView note, date;
-        private IViewHolderClick clickListener;
+        private AlarmClickListener clickListener;
 
-        public ViewHolder(View v, IViewHolderClick listener) {
+        public ViewHolder(View v, AlarmClickListener listener) {
             super(v);
             clickListener = listener;
             note = (TextView) v.findViewById(R.id.alarm_note);
@@ -29,15 +29,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            clickListener.showEditDialog(v, getLayoutPosition());
+            clickListener.onAlarmClick(v, getLayoutPosition());
         }
 
-        public static interface IViewHolderClick {
-            public void showEditDialog(View caller, int pos);
+        public static interface AlarmClickListener {
+            public void onAlarmClick(View caller, int pos);
         }
     }
 
-    public ListAdapter(List<Alarm> alarms, ViewHolder.IViewHolderClick listener) {
+    public ListAdapter(List<Alarm> alarms, ViewHolder.AlarmClickListener listener) {
         this.listener = listener;
         this.alarms = new SortedList<>(Alarm.class, new SortedList.Callback<Alarm>() {
             @Override
@@ -93,7 +93,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.note.setText(alarms.get(position).getNote());
-        holder.date.setText(formatDate(alarms.get(position).getDatetime()));
+        holder.date.setText(new DateTime(alarms.get(position).getDatetime()).toString());
     }
 
     @Override
@@ -109,7 +109,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         return alarms.get(position);
     }
 
-    public SortedList<Alarm> getAll() {
+    public SortedList<Alarm> getAlarms() {
         return alarms;
     }
 
@@ -167,10 +167,5 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             alarms.removeItemAt(alarms.size() - 1);
         }
         alarms.endBatchedUpdates();
-    }
-
-    private String formatDate(long data) {
-        DateTime dt = new DateTime(data);
-        return dt.toString();
     }
 }

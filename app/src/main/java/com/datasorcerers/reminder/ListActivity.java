@@ -25,8 +25,7 @@ public class ListActivity extends AppCompatActivity {
 
     // UI
     private RecyclerView recyclerView;
-    private ListAdapter adapter;
-    private SectionedListAdapter sectionedAdapter;
+    private SectionedListAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private FloatingActionButton fab;
     private Toolbar toolbar;
@@ -56,22 +55,20 @@ public class ListActivity extends AppCompatActivity {
         db = new DatabaseHelper(getApplicationContext());
         am = new AlarmManagerHelper(this);
 
-        // list adapter, edit click listener setup
-        adapter = new ListAdapter(db.getAll(), new ListAdapter.ViewHolder.IViewHolderClick() {
+        // list adapter
+        adapter = new SectionedListAdapter(this,R.layout.list_section,R.id.section_text, db.getAll(),
+                new ListAdapter.ViewHolder.AlarmClickListener() {
             @Override
-            public void showEditDialog(View caller, int position) {
+            public void onAlarmClick(View caller, int position) {
                 Intent i = new Intent(getApplicationContext(), EditActivity.class);
-                if (sectionedAdapter != null) {
-                    i.putExtra(Alarm.ALARM_EXTRA_NAME, adapter.get(sectionedAdapter.sectionedPositionToPosition(position)));
+                if (adapter != null) {
+                    i.putExtra(Alarm.ALARM_EXTRA_NAME, adapter.get(adapter.sectionedPositionToPosition(position)));
                 }
                 startActivity(i);
             }
         });
-
-        sectionedAdapter = new
-                SectionedListAdapter(this,R.layout.list_section,R.id.section_text,adapter);
-        sectionedAdapter.setSections();
-        recyclerView.setAdapter(sectionedAdapter);
+        adapter.setSections();
+        recyclerView.setAdapter(adapter);
 
         // create alarm on button click
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -86,6 +83,13 @@ public class ListActivity extends AppCompatActivity {
         // delete on list item swipe
         ItemTouchHelper.SimpleCallback itemTouchCallback = new ItemTouchHelper.SimpleCallback(
                 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if (viewHolder instanceof SectionedListAdapter.SectionViewHolder) return 0;
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                                   RecyclerView.ViewHolder target) {
@@ -94,7 +98,7 @@ public class ListActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                int position = sectionedAdapter.sectionedPositionToPosition(
+                int position = adapter.sectionedPositionToPosition(
                         viewHolder.getAdapterPosition());
                 deleteAlarm = adapter.get(position);
                 db.delete(deleteAlarm);
@@ -127,7 +131,7 @@ public class ListActivity extends AppCompatActivity {
                         am.cancel(alarm);
                         am.set(alarm.getDatetime(), alarm);
                         adapter.updateItem(alarm);
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyAlarmsDataSetChanged();
                         break;
                     case UPDATE_LIST_ACTION_CREATE_ALARM:
                         am.set(alarm.getDatetime(), alarm);
