@@ -25,7 +25,8 @@ public class ListActivity extends AppCompatActivity {
 
     // UI
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private ListAdapter adapter;
+    private SectionedListAdapter sectionedAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private FloatingActionButton fab;
     private Toolbar toolbar;
@@ -60,11 +61,17 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void showEditDialog(View caller, int position) {
                 Intent i = new Intent(getApplicationContext(), EditActivity.class);
-                i.putExtra(Alarm.ALARM_EXTRA_NAME, ((ListAdapter) adapter).get(position));
+                if (sectionedAdapter != null) {
+                    i.putExtra(Alarm.ALARM_EXTRA_NAME, adapter.get(sectionedAdapter.sectionedPositionToPosition(position)));
+                }
                 startActivity(i);
             }
         });
-        recyclerView.setAdapter(adapter);
+
+        sectionedAdapter = new
+                SectionedListAdapter(this,R.layout.list_section,R.id.section_text,adapter);
+        sectionedAdapter.setSections();
+        recyclerView.setAdapter(sectionedAdapter);
 
         // create alarm on button click
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -87,11 +94,12 @@ public class ListActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                int position = viewHolder.getAdapterPosition();
-                deleteAlarm = ((ListAdapter) adapter).get(position);
+                int position = sectionedAdapter.sectionedPositionToPosition(
+                        viewHolder.getAdapterPosition());
+                deleteAlarm = adapter.get(position);
                 db.delete(deleteAlarm);
                 am.cancel(deleteAlarm);
-                ((ListAdapter) adapter).removeItemAt(position);
+                adapter.removeItemAt(position);
                 deleteAlarm = null;
                 // TODO show cancel action toast
             }
@@ -111,19 +119,19 @@ public class ListActivity extends AppCompatActivity {
                         for (int i = 0; i < notified.size(); i++) {
                             deleteAlarm = notified.get(i);
                             db.delete(deleteAlarm);
-                            ((ListAdapter) adapter).remove(deleteAlarm);
+                            adapter.remove(deleteAlarm);
                         }
                         break;
                     case UPDATE_LIST_ACTION_UPDATE_ALARM:
                         db.update(alarm);
                         am.cancel(alarm);
                         am.set(alarm.getDatetime(), alarm);
-                        ((ListAdapter) adapter).updateItem(alarm);
+                        adapter.updateItem(alarm);
                         adapter.notifyDataSetChanged();
                         break;
                     case UPDATE_LIST_ACTION_CREATE_ALARM:
                         am.set(alarm.getDatetime(), alarm);
-                        ((ListAdapter) adapter).add(alarm);
+                        adapter.add(alarm);
                         break;
                 }
             }

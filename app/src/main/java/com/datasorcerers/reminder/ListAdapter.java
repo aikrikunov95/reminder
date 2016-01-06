@@ -35,7 +35,6 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         public static interface IViewHolderClick {
             public void showEditDialog(View caller, int pos);
         }
-
     }
 
     public ListAdapter(List<Alarm> alarms, ViewHolder.IViewHolderClick listener) {
@@ -108,6 +107,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     public Alarm get(int position) {
         return alarms.get(position);
+    }
+
+    public SortedList<Alarm> getAll() {
+        return alarms;
     }
 
     public int add(Alarm item) {
