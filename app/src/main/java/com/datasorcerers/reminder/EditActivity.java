@@ -4,7 +4,6 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -35,6 +34,7 @@ public class EditActivity extends AppCompatActivity implements
     private DateTime newAlarmDatetime;
 
     private DatabaseHelper db;
+    private AsyncListUpdateHelper listUpdater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +42,7 @@ public class EditActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_edit);
 
         db = new DatabaseHelper(this);
+        listUpdater = new AsyncListUpdateHelper(getApplicationContext());
 
         // Data
 
@@ -126,16 +127,13 @@ public class EditActivity extends AppCompatActivity implements
             public void onClick(View v) {
                 newAlarmNote = note.getText().toString();
                 Alarm alarm;
-                Intent i;
                 if (alarmToUpdate != null) {
                     alarm = new Alarm(alarmToUpdate.getId(), newAlarmNote, newAlarmDatetime.getMillis());
-                    i = new Intent(ListActivity.UPDATE_LIST_ACTION_UPDATE_ALARM);
+                    listUpdater.update(alarm, ListActivity.UPDATE_LIST_ACTION_UPDATE_ALARM);
                 } else {
-                    alarm = db.add(newAlarmNote, newAlarmDatetime.getMillis());
-                    i = new Intent(ListActivity.UPDATE_LIST_ACTION_CREATE_ALARM);
+                    alarm = new Alarm(-1, newAlarmNote, newAlarmDatetime.getMillis());
+                    listUpdater.update(alarm, ListActivity.UPDATE_LIST_ACTION_CREATE_ALARM);
                 }
-                i.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
-                sendBroadcast(i);
                 finish();
             }
         });

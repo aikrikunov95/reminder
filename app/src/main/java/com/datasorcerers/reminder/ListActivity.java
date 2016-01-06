@@ -22,18 +22,18 @@ public class ListActivity extends AppCompatActivity {
     public static final String UPDATE_LIST_ACTION_DELETE_NOTIFIED = "com.datasorcerers.reminder.ListActivity.DELETE_NOTIFIED";
     public static final String UPDATE_LIST_ACTION_UPDATE_ALARM = "com.datasorcerers.reminder.ListActivity.UPDATE_ALARM";
     public static final String UPDATE_LIST_ACTION_CREATE_ALARM = "com.datasorcerers.reminder.ListActivity.CREATE_ALARM";
+    public static final String UPDATE_LIST_ACTION_ALARM_MISSED = "com.datasorcerers.reminder.ListActivity.ALARM_MISSED";
 
     // UI
     private RecyclerView recyclerView;
     private SectionedListAdapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
     private FloatingActionButton fab;
     private Toolbar toolbar;
 
     // service
     private BroadcastReceiver receiver;
     private DatabaseHelper db;
-    private AlarmManagerHelper am;
+    private AlarmCrudHelper crud;
 
     private Alarm deleteAlarm;
 
@@ -42,18 +42,16 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        db = new DatabaseHelper(getApplicationContext());
+
         toolbar = (Toolbar) findViewById(R.id.toolbar_top);
         setSupportActionBar(toolbar);
 
-        // recyclerview setup
+        // recycler view setup
         recyclerView = (RecyclerView) findViewById(R.id.alarms_recycler_view);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // db and alarmmanager helpers setup
-        db = new DatabaseHelper(getApplicationContext());
-        am = new AlarmManagerHelper(this);
 
         // list adapter
         adapter = new SectionedListAdapter(this,R.layout.list_section,R.id.section_text, db.getAll(),
@@ -61,21 +59,7 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onAlarmClick(View caller, int position) {
                 Intent i = new Intent(getApplicationContext(), EditActivity.class);
-                if (adapter != null) {
                     i.putExtra(Alarm.ALARM_EXTRA_NAME, adapter.get(adapter.sectionedPositionToPosition(position)));
-                }
-                startActivity(i);
-            }
-        });
-        adapter.setSections();
-        recyclerView.setAdapter(adapter);
-
-        // create alarm on button click
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), EditActivity.class);
                 startActivity(i);
             }
         });
@@ -100,18 +84,29 @@ public class ListActivity extends AppCompatActivity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = adapter.sectionedPositionToPosition(
                         viewHolder.getAdapterPosition());
-                deleteAlarm = adapter.get(position);
-                db.delete(deleteAlarm);
-                am.cancel(deleteAlarm);
-                adapter.removeItemAt(position);
-                deleteAlarm = null;
+                Alarm alarm = adapter.get(position);
+                crud.delete(alarm);
+                adapter.remove(alarm);
                 // TODO show cancel action toast
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        // delete on notification dismiss
+        recyclerView.setAdapter(adapter);
+
+        crud = new AlarmCrudHelper(this, adapter);
+
+        // create alarm on button click
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), EditActivity.class);
+                startActivity(i);
+            }
+        });
+
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -121,21 +116,23 @@ public class ListActivity extends AppCompatActivity {
                     case UPDATE_LIST_ACTION_DELETE_NOTIFIED:
                         ArrayList<Alarm> notified = (ArrayList<Alarm>) db.getAllNotified();
                         for (int i = 0; i < notified.size(); i++) {
-                            deleteAlarm = notified.get(i);
-                            db.delete(deleteAlarm);
-                            adapter.remove(deleteAlarm);
+                            Alarm a = notified.get(i);
+                            crud.delete(a);
+                            adapter.remove(a);
                         }
                         break;
                     case UPDATE_LIST_ACTION_UPDATE_ALARM:
-                        db.update(alarm);
-                        am.cancel(alarm);
-                        am.set(alarm.getDatetime(), alarm);
+                        crud.update(alarm);
                         adapter.updateItem(alarm);
                         adapter.notifyAlarmsDataSetChanged();
                         break;
                     case UPDATE_LIST_ACTION_CREATE_ALARM:
-                        am.set(alarm.getDatetime(), alarm);
+                        alarm = crud.create(alarm);
                         adapter.add(alarm);
+                        break;
+                    case UPDATE_LIST_ACTION_ALARM_MISSED:
+                        adapter.updateItem(alarm);
+                        adapter.notifyAlarmsDataSetChanged();
                         break;
                 }
             }
@@ -144,6 +141,7 @@ public class ListActivity extends AppCompatActivity {
         filter.addAction(UPDATE_LIST_ACTION_DELETE_NOTIFIED);
         filter.addAction(UPDATE_LIST_ACTION_UPDATE_ALARM);
         filter.addAction(UPDATE_LIST_ACTION_CREATE_ALARM);
+        filter.addAction(UPDATE_LIST_ACTION_ALARM_MISSED);
         registerReceiver(receiver, filter);
     }
 

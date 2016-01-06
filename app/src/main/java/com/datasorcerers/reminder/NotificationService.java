@@ -31,10 +31,12 @@ public class NotificationService extends IntentService {
         Alarm alarm = intent.getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
         AlarmManagerHelper am = new AlarmManagerHelper(context);
         DatabaseHelper db = new DatabaseHelper(context);
+        AsyncListUpdateHelper listUpdater = new AsyncListUpdateHelper(context);
 
         if (!alarm.isNotified()) {
             alarm.setNotified(true);
             db.update(alarm);
+            listUpdater.update(alarm, ListActivity.UPDATE_LIST_ACTION_ALARM_MISSED);
         }
         ArrayList<Alarm> notified = (ArrayList<Alarm>) db.getAllNotified();
         for (int i=0; i < notified.size(); i++) {
@@ -67,8 +69,7 @@ public class NotificationService extends IntentService {
             case ACTION_STOP:
                 Klaxon.stop();
                 WakeLock.release();
-                Intent i = new Intent(ListActivity.UPDATE_LIST_ACTION_DELETE_NOTIFIED);
-                sendBroadcast(i);
+                listUpdater.update(alarm, ListActivity.UPDATE_LIST_ACTION_DELETE_NOTIFIED);
                 break;
         }
     }

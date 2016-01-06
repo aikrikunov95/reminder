@@ -12,8 +12,8 @@ import org.joda.time.DateTime;
 import java.util.List;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
-    private SortedList<Alarm> alarms;
-    private ViewHolder.AlarmClickListener listener;
+    private SortedList<Alarm> mAlarms;
+    private ViewHolder.AlarmClickListener mClickListener;
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView note, date;
@@ -38,8 +38,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     }
 
     public ListAdapter(List<Alarm> alarms, ViewHolder.AlarmClickListener listener) {
-        this.listener = listener;
-        this.alarms = new SortedList<>(Alarm.class, new SortedList.Callback<Alarm>() {
+        this.mClickListener = listener;
+        this.mAlarms = new SortedList<>(Alarm.class, new SortedList.Callback<Alarm>() {
             @Override
             public int compare(Alarm o1, Alarm o2) {
                 return (int) (o1.getDatetime() - o2.getDatetime());
@@ -79,7 +79,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
                 return item1.getId() == item2.getId();
             }
         });
-        this.alarms.addAll(alarms);
+        this.mAlarms.addAll(alarms);
     }
 
     @Override
@@ -87,85 +87,27 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item, parent, false);
 
-        return new ViewHolder(v, listener);
+        return new ViewHolder(v, mClickListener);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.note.setText(alarms.get(position).getNote());
-        holder.date.setText(new DateTime(alarms.get(position).getDatetime()).toString());
+        Alarm alarm = mAlarms.get(position);
+        if (!alarm.isNotified()) {
+            holder.note.setText(alarm.getNote());
+        } else {
+            String text = alarm.getNote() + " missed";
+            holder.note.setText(text);
+        }
+        holder.date.setText(new DateTime(alarm.getDatetime()).toString());
     }
 
     @Override
     public int getItemCount() {
-        return alarms.size();
+        return mAlarms.size();
     }
 
-    /*
-    * alarmlist helper methods
-    */
-
-    public Alarm get(int position) {
-        return alarms.get(position);
-    }
-
-    public SortedList<Alarm> getAlarms() {
-        return alarms;
-    }
-
-    public int add(Alarm item) {
-        return alarms.add(item);
-    }
-
-    public int indexOf(Alarm item) {
-        return alarms.indexOf(item);
-    }
-
-    public void updateItemAt(int index, Alarm item) {
-        alarms.updateItemAt(index, item);
-    }
-
-    public int indexOfId(int id) {
-        for (int i = 0; i < alarms.size(); i++) {
-            if (id == alarms.get(i).getId()) {
-                return indexOf(alarms.get(i));
-            }
-        }
-        return -1;
-    }
-
-    public void updateItem(Alarm alarm) {
-        updateItemAt(indexOfId(alarm.getId()), alarm);
-
-    }
-
-    public void addAll(List<Alarm> items) {
-        alarms.beginBatchedUpdates();
-        for (Alarm item : items) {
-            alarms.add(item);
-        }
-        alarms.endBatchedUpdates();
-    }
-
-    public boolean remove(Alarm item) {
-        int id = indexOfId(item.getId());
-        if (id >= 0) {
-            removeItemAt(id);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public Alarm removeItemAt(int index) {
-        return alarms.removeItemAt(index);
-    }
-
-    public void clear() {
-        alarms.beginBatchedUpdates();
-        while (alarms.size() > 0) {
-            alarms.removeItemAt(alarms.size() - 1);
-        }
-        alarms.endBatchedUpdates();
+    public SortedList<Alarm> getmAlarms() {
+        return mAlarms;
     }
 }
