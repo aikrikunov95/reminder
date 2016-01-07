@@ -14,8 +14,8 @@ public class Klaxon {
     private static final long[] sVibratePattern = {500, 500};
 
     private static Ringtone getRingtone(Context context) {
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        return RingtoneManager.getRingtone(context.getApplicationContext(), notification);
+        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        return RingtoneManager.getRingtone(context.getApplicationContext(), uri);
     }
 
     private static Vibrator getVibrator(Context context) {

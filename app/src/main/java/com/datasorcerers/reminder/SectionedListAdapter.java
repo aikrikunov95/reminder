@@ -128,7 +128,7 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void setSections() {
         this.mSections.clear();
 
-        SortedList<Alarm> alarms = mBaseAdapter.getmAlarms();
+        SortedList<Alarm> alarms = mBaseAdapter.getAlarms();
         ArrayList<DateTime> alarmDates = new ArrayList<>();
         ArrayList<Section> sectionsList = new ArrayList<>();
         for (int i = 0; i < alarms.size(); i++) {
@@ -211,25 +211,25 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
     */
 
     public Alarm get(int position) {
-        return mBaseAdapter.getmAlarms().get(position);
+        return mBaseAdapter.getAlarms().get(position);
     }
 
     public int add(Alarm item) {
-        return mBaseAdapter.getmAlarms().add(item);
+        return mBaseAdapter.getAlarms().add(item);
     }
 
     public int indexOf(Alarm item) {
-        return mBaseAdapter.getmAlarms().indexOf(item);
+        return mBaseAdapter.getAlarms().indexOf(item);
     }
 
     public void updateItemAt(int index, Alarm item) {
-        mBaseAdapter.getmAlarms().updateItemAt(index, item);
+        mBaseAdapter.getAlarms().updateItemAt(index, item);
     }
 
     public int indexOfId(int id) {
-        for (int i = 0; i < mBaseAdapter.getmAlarms().size(); i++) {
-            if (id == mBaseAdapter.getmAlarms().get(i).getId()) {
-                return indexOf(mBaseAdapter.getmAlarms().get(i));
+        for (int i = 0; i < mBaseAdapter.getAlarms().size(); i++) {
+            if (id == mBaseAdapter.getAlarms().get(i).getId()) {
+                return indexOf(mBaseAdapter.getAlarms().get(i));
             }
         }
         return -1;
@@ -240,11 +240,11 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     public void addAll(List<Alarm> items) {
-        mBaseAdapter.getmAlarms().beginBatchedUpdates();
+        mBaseAdapter.getAlarms().beginBatchedUpdates();
         for (Alarm item : items) {
-            mBaseAdapter.getmAlarms().add(item);
+            mBaseAdapter.getAlarms().add(item);
         }
-        mBaseAdapter.getmAlarms().endBatchedUpdates();
+        mBaseAdapter.getAlarms().endBatchedUpdates();
     }
 
     public boolean remove(Alarm item) {
@@ -258,19 +258,24 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     public Alarm removeItemAt(int index) {
-        return mBaseAdapter.getmAlarms().removeItemAt(index);
+        return mBaseAdapter.getAlarms().removeItemAt(index);
     }
 
     public void clear() {
-        mBaseAdapter.getmAlarms().beginBatchedUpdates();
-        while (mBaseAdapter.getmAlarms().size() > 0) {
-            mBaseAdapter.getmAlarms().removeItemAt(mBaseAdapter.getmAlarms().size() - 1);
+        mBaseAdapter.getAlarms().beginBatchedUpdates();
+        while (mBaseAdapter.getAlarms().size() > 0) {
+            mBaseAdapter.getAlarms().removeItemAt(mBaseAdapter.getAlarms().size() - 1);
         }
-        mBaseAdapter.getmAlarms().endBatchedUpdates();
+        mBaseAdapter.getAlarms().endBatchedUpdates();
     }
 
     public void notifyAlarmsDataSetChanged() {
         mBaseAdapter.notifyDataSetChanged();
+    }
+
+    public void refresh(List<Alarm> alarms) {
+        clear();
+        addAll(alarms);
     }
 
 }

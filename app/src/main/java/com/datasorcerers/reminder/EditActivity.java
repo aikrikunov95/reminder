@@ -34,6 +34,7 @@ public class EditActivity extends AppCompatActivity implements
     private DateTime newAlarmDatetime;
 
     private DatabaseHelper db;
+    private AlarmCrudHelper crud;
     private AsyncListUpdateHelper listUpdater;
 
     @Override
@@ -42,6 +43,7 @@ public class EditActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_edit);
 
         db = new DatabaseHelper(this);
+        crud = new AlarmCrudHelper(this);
         listUpdater = new AsyncListUpdateHelper(getApplicationContext());
 
         // Data
@@ -52,7 +54,7 @@ public class EditActivity extends AppCompatActivity implements
             newAlarmDatetime = new DateTime(alarmToUpdate.getDatetime());
         } else {
             newAlarmNote = "";
-            newAlarmDatetime = new DateTime();
+            newAlarmDatetime = new DateTime()/*.withSecondOfMinute(0).withMillisOfSecond(0)*/; // TODO recomment
         }
 
         // UI
@@ -129,9 +131,11 @@ public class EditActivity extends AppCompatActivity implements
                 Alarm alarm;
                 if (alarmToUpdate != null) {
                     alarm = new Alarm(alarmToUpdate.getId(), newAlarmNote, newAlarmDatetime.getMillis());
+                    crud.update(alarm);
                     listUpdater.update(alarm, ListActivity.UPDATE_LIST_ACTION_UPDATE_ALARM);
                 } else {
                     alarm = new Alarm(-1, newAlarmNote, newAlarmDatetime.getMillis());
+                    alarm = crud.create(alarm);
                     listUpdater.update(alarm, ListActivity.UPDATE_LIST_ACTION_CREATE_ALARM);
                 }
                 finish();

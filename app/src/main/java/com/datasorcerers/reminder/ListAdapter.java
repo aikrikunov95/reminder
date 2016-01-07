@@ -67,11 +67,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
             @Override
             public boolean areContentsTheSame(Alarm oldItem, Alarm newItem) {
-                /*boolean idsAreSame = oldItem.getId() == newItem.getId();
+                boolean idsAreSame = oldItem.getId() == newItem.getId();
                 boolean notesAreSame = oldItem.getNote().equals(newItem.getNote());
                 boolean datesAreSame = oldItem.getDatetime() == newItem.getDatetime();
-                return idsAreSame && notesAreSame && datesAreSame;*/
-                return areItemsTheSame(oldItem, newItem);
+                return idsAreSame && notesAreSame && datesAreSame;
+                /*return areItemsTheSame(oldItem, newItem);*/
             }
 
             @Override
@@ -96,7 +96,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         if (!alarm.isNotified()) {
             holder.note.setText(alarm.getNote());
         } else {
-            String text = alarm.getNote() + " missed";
+            String text = alarm.getNote() + " missed"; // TODO hard string
             holder.note.setText(text);
         }
         holder.date.setText(new DateTime(alarm.getDatetime()).toString());
@@ -107,7 +107,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         return mAlarms.size();
     }
 
-    public SortedList<Alarm> getmAlarms() {
+    public SortedList<Alarm> getAlarms() {
         return mAlarms;
     }
 }

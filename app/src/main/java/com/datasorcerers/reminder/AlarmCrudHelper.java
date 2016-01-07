@@ -5,12 +5,10 @@ import android.content.Context;
 public class AlarmCrudHelper {
     AlarmManagerHelper am;
     DatabaseHelper db;
-    SectionedListAdapter adapter;
 
-    public AlarmCrudHelper(Context context, SectionedListAdapter adapter) {
+    public AlarmCrudHelper(Context context) {
         this.am = new AlarmManagerHelper(context);
         this.db = new DatabaseHelper(context);
-        this.adapter = adapter;
     }
 
     public Alarm create(Alarm alarm) {

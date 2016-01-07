@@ -33,17 +33,19 @@ public class NotificationService extends IntentService {
         DatabaseHelper db = new DatabaseHelper(context);
         AsyncListUpdateHelper listUpdater = new AsyncListUpdateHelper(context);
 
+
+        // mark missed alarms in list
         if (!alarm.isNotified()) {
             alarm.setNotified(true);
             db.update(alarm);
             listUpdater.update(alarm, ListActivity.UPDATE_LIST_ACTION_ALARM_MISSED);
         }
+
+
         ArrayList<Alarm> notified = (ArrayList<Alarm>) db.getAllNotified();
         for (int i=0; i < notified.size(); i++) {
             am.cancel(notified.get(i));
         }
-        Klaxon.stop();
-        WakeLock.release();
 
         String action = intent.getAction();
         switch (action) {
@@ -69,6 +71,7 @@ public class NotificationService extends IntentService {
             case ACTION_STOP:
                 Klaxon.stop();
                 WakeLock.release();
+                db.deleteAllNotified();
                 listUpdater.update(alarm, ListActivity.UPDATE_LIST_ACTION_DELETE_NOTIFIED);
                 break;
         }

@@ -98,12 +98,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(0);
-                String note = cursor.getString(1);
-                long date = cursor.getLong(2);
-                boolean notified = cursor.getInt(0) != 0;
-                Alarm alarm = new Alarm(id, note, date, notified);
-                alarms.add(alarm);
+                alarms.add(new Alarm(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getLong(2),
+                        cursor.getInt(3) != 0
+                ));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -123,12 +123,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(0);
-                String note = cursor.getString(1);
-                long date = cursor.getLong(2);
-                boolean notified = cursor.getInt(0) != 0;
-                Alarm alarm = new Alarm(id, note, date, notified);
-                alarms.add(alarm);
+                alarms.add(new Alarm(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getLong(2),
+                        cursor.getInt(3) != 0
+                ));
             } while (cursor.moveToNext());
         }
         cursor.close();

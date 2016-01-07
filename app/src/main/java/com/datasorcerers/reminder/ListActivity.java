@@ -15,8 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.ArrayList;
-
 public class ListActivity extends AppCompatActivity {
 
     public static final String UPDATE_LIST_ACTION_DELETE_NOTIFIED = "com.datasorcerers.reminder.ListActivity.DELETE_NOTIFIED";
@@ -43,6 +41,7 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
 
         db = new DatabaseHelper(getApplicationContext());
+        crud = new AlarmCrudHelper(this);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_top);
         setSupportActionBar(toolbar);
@@ -95,8 +94,6 @@ public class ListActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
 
-        crud = new AlarmCrudHelper(this, adapter);
-
         // create alarm on button click
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -114,20 +111,13 @@ public class ListActivity extends AppCompatActivity {
                 Alarm alarm = intent.getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
                 switch (action) {
                     case UPDATE_LIST_ACTION_DELETE_NOTIFIED:
-                        ArrayList<Alarm> notified = (ArrayList<Alarm>) db.getAllNotified();
-                        for (int i = 0; i < notified.size(); i++) {
-                            Alarm a = notified.get(i);
-                            crud.delete(a);
-                            adapter.remove(a);
-                        }
+                        adapter.refresh(db.getAll());
                         break;
                     case UPDATE_LIST_ACTION_UPDATE_ALARM:
-                        crud.update(alarm);
                         adapter.updateItem(alarm);
                         adapter.notifyAlarmsDataSetChanged();
                         break;
                     case UPDATE_LIST_ACTION_CREATE_ALARM:
-                        alarm = crud.create(alarm);
                         adapter.add(alarm);
                         break;
                     case UPDATE_LIST_ACTION_ALARM_MISSED:
