@@ -1,9 +1,6 @@
 package com.datasorcerers.reminder;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,12 +12,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class ListActivity extends AppCompatActivity {
+import org.joda.time.DateTime;
 
-    public static final String UPDATE_LIST_ACTION_DELETE_NOTIFIED = "com.datasorcerers.reminder.ListActivity.DELETE_NOTIFIED";
-    public static final String UPDATE_LIST_ACTION_UPDATE_ALARM = "com.datasorcerers.reminder.ListActivity.UPDATE_ALARM";
-    public static final String UPDATE_LIST_ACTION_CREATE_ALARM = "com.datasorcerers.reminder.ListActivity.CREATE_ALARM";
-    public static final String UPDATE_LIST_ACTION_ALARM_MISSED = "com.datasorcerers.reminder.ListActivity.ALARM_MISSED";
+import java.util.ArrayList;
+import java.util.List;
+
+public class ListActivity extends AppCompatActivity {
 
     // UI
     private RecyclerView recyclerView;
@@ -28,20 +25,10 @@ public class ListActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private Toolbar toolbar;
 
-    // service
-    private BroadcastReceiver receiver;
-    private DatabaseHelper db;
-    private AlarmCrudHelper crud;
-
-    private Alarm deleteAlarm;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-
-        db = new DatabaseHelper(getApplicationContext());
-        crud = new AlarmCrudHelper(this);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_top);
         setSupportActionBar(toolbar);
@@ -51,9 +38,14 @@ public class ListActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        List<Alarm> data = new ArrayList<>();
+        data.add(new Alarm(0, "Позвонить маме", new DateTime().getMillis()));
+        data.add(new Alarm(1, "Выбросить мусор", new DateTime().getMillis()));
+        data.add(new Alarm(2, "Сходить в магазин", new DateTime().plusDays(1).getMillis()));
+        data.add(new Alarm(3, "Постирать одежду", new DateTime().plusDays(1).getMillis()));
 
         // list adapter
-        adapter = new SectionedListAdapter(this,R.layout.list_section,R.id.section_text, db.getAll(),
+        adapter = new SectionedListAdapter(this,R.layout.list_section,R.id.section_text, data,
                 new ListAdapter.ViewHolder.AlarmClickListener() {
             @Override
             public void onAlarmClick(View caller, int position) {
@@ -84,7 +76,6 @@ public class ListActivity extends AppCompatActivity {
                 int position = adapter.sectionedPositionToPosition(
                         viewHolder.getAdapterPosition());
                 Alarm alarm = adapter.get(position);
-                crud.delete(alarm);
                 adapter.remove(alarm);
                 // TODO show cancel action toast
             }
@@ -103,36 +94,6 @@ public class ListActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                Alarm alarm = intent.getParcelableExtra(Alarm.ALARM_EXTRA_NAME);
-                switch (action) {
-                    case UPDATE_LIST_ACTION_DELETE_NOTIFIED:
-                        adapter.refresh(db.getAll());
-                        break;
-                    case UPDATE_LIST_ACTION_UPDATE_ALARM:
-                        adapter.updateItem(alarm);
-                        adapter.notifyAlarmsDataSetChanged();
-                        break;
-                    case UPDATE_LIST_ACTION_CREATE_ALARM:
-                        adapter.add(alarm);
-                        break;
-                    case UPDATE_LIST_ACTION_ALARM_MISSED:
-                        adapter.updateItem(alarm);
-                        adapter.notifyAlarmsDataSetChanged();
-                        break;
-                }
-            }
-        };
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(UPDATE_LIST_ACTION_DELETE_NOTIFIED);
-        filter.addAction(UPDATE_LIST_ACTION_UPDATE_ALARM);
-        filter.addAction(UPDATE_LIST_ACTION_CREATE_ALARM);
-        filter.addAction(UPDATE_LIST_ACTION_ALARM_MISSED);
-        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -160,12 +121,6 @@ public class ListActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(receiver);
     }
 }
 

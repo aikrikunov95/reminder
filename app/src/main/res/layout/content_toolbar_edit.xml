@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <ImageButton
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:id="@+id/close_button"
+        android:background="@drawable/ic_clear_white_48dp"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="14dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ready_button"
+        android:text="SAVE"
+        android:textSize="16sp"
+        android:textColor="#fff"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/note_text"
+        android:background="@null"
+        android:hint="Remind me..."
+        android:textColorHint="#fff"
+        android:textColor="#fff"
+        android:textCursorDrawable="@drawable/cursor_white_thick"
+        android:layout_marginBottom="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>

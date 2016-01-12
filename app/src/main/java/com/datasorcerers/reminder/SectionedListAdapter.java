@@ -140,7 +140,7 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
                     .withMillisOfSecond(0);
             if (!alarmDates.contains(date)) {
                 alarmDates.add(date);
-                sectionsList.add(new Section(i, date.toString()));
+                sectionsList.add(new Section(i, DateTimeFormatter.formatDate(date)));
             }
         }
 

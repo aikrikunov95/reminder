@@ -23,7 +23,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             super(v);
             clickListener = listener;
             note = (TextView) v.findViewById(R.id.alarm_note);
-            date = (TextView) v.findViewById(R.id.alarm_date);
+            date = (TextView) v.findViewById(R.id.alarm_time);
             v.setOnClickListener(this);
         }
 
@@ -93,13 +93,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Alarm alarm = mAlarms.get(position);
-        if (!alarm.isNotified()) {
-            holder.note.setText(alarm.getNote());
-        } else {
-            String text = alarm.getNote() + " missed"; // TODO hard string
-            holder.note.setText(text);
-        }
-        holder.date.setText(new DateTime(alarm.getDatetime()).toString());
+        holder.note.setText(alarm.getNote());
+        holder.date.setText(DateTimeFormatter.formatTime(new DateTime(alarm.getDatetime())));
     }
 
     @Override

@@ -7,10 +7,10 @@
     android:layout_height="match_parent">
 
     <android.support.v7.widget.Toolbar
+        style="@style/AppTheme.Toolbar"
         android:id="@+id/toolbar_top"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:background="@color/colorPrimary"
         app:titleTextColor="#fff"/>
 
     <include layout="@layout/content_list" />
@@ -23,6 +23,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_add_white_48dp"
         />
 
 </android.support.design.widget.CoordinatorLayout>
