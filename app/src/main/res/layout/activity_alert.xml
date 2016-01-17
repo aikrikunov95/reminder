@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorPrimary">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:id="@+id/alert_dummy_center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="60sp"
+            android:textColor="#fff"
+            android:id="@+id/alert_note"
+            android:layout_above="@+id/alert_dummy_center"
+            android:layout_centerHorizontal="true" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_done_white_48dp"
+            android:id="@+id/alert_dismiss"
+            android:layout_below="@+id/alert_dummy_center"
+            android:layout_toEndOf="@+id/alert_dummy_center"
+            android:layout_marginStart="16dp"
+            android:onClick="dismiss"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_update_white_48dp"
+            android:id="@+id/alert_snooze"
+            android:layout_below="@+id/alert_dummy_center"
+            android:layout_toStartOf="@+id/alert_dummy_center"
+            android:layout_marginEnd="16dp"
+            android:onClick="snooze"/>
+
+    </RelativeLayout>
+</FrameLayout>
