@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TimePicker;
 
 import org.joda.time.DateTime;
@@ -28,6 +29,7 @@ public class EditActivity extends AppCompatActivity implements
     private EditText timeText;
     private Toolbar toolbar;
     private Button readyButton;
+    private ImageButton closeButton;
     private InputMethodManager imm;
 
     private Alarm alarm;
@@ -120,6 +122,14 @@ public class EditActivity extends AppCompatActivity implements
                 i.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
                 imm.hideSoftInputFromWindow(noteText.getWindowToken(), 0);
                 startActivity(i);
+                finish();
+            }
+        });
+
+        closeButton = (ImageButton) findViewById(R.id.close_button);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 finish();
             }
         });
