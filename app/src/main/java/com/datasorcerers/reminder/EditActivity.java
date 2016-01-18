@@ -4,8 +4,9 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,7 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import org.joda.time.DateTime;
@@ -25,11 +26,11 @@ public class EditActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private EditText noteText;
-    private EditText dateText;
-    private EditText timeText;
+    private TextView dateText;
+    private TextView timeText;
     private Toolbar toolbar;
     private Button readyButton;
-    private ImageButton closeButton;
+    private Button closeButton;
     private InputMethodManager imm;
 
     private Alarm alarm;
@@ -71,7 +72,8 @@ public class EditActivity extends AppCompatActivity implements
         noteText.setText(note);
         noteText.requestFocus();
 
-        dateText = (EditText) findViewById(R.id.date_text);
+        dateText = (TextView) findViewById(R.id.date_text);
+        dateText.setPaintFlags(dateText.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
         dateText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,7 +94,8 @@ public class EditActivity extends AppCompatActivity implements
         });
         dateText.setText(DateTimeFormatter.formatDate(datetime));
 
-        timeText = (EditText) findViewById(R.id.time_text);
+        timeText = (TextView) findViewById(R.id.time_text);
+        timeText.setPaintFlags(timeText.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
         timeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,19 +120,17 @@ public class EditActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 note = noteText.getText().toString();
-                alarm = new Alarm(3, note, datetime.getMillis());
-                Intent i = new Intent(getApplicationContext(), ListActivity.class);
-                i.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
-                imm.hideSoftInputFromWindow(noteText.getWindowToken(), 0);
-                startActivity(i);
+                alarm = new Alarm(5, note, datetime.getMillis());
+                hideKeyboard();
                 finish();
             }
         });
 
-        closeButton = (ImageButton) findViewById(R.id.close_button);
+        closeButton = (Button) findViewById(R.id.close_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideKeyboard();
                 finish();
             }
         });
@@ -152,6 +153,11 @@ public class EditActivity extends AppCompatActivity implements
                 .withSecondOfMinute(0)
                 .withMillisOfSecond(0);
         timeText.setText(DateTimeFormatter.formatTime(datetime));
+    }
+
+    private void hideKeyboard() {
+        imm.hideSoftInputFromWindow(noteText.getWindowToken(), 0);
+        SystemClock.sleep(400);
     }
 
     public static class DatePickerFragment extends DialogFragment {
@@ -181,4 +187,5 @@ public class EditActivity extends AppCompatActivity implements
                     DateFormat.is24HourFormat(getActivity()));
         }
     }
+
 }

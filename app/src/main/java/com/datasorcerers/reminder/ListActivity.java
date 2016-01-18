@@ -41,8 +41,10 @@ public class ListActivity extends AppCompatActivity {
         List<Alarm> data = new ArrayList<>();
         data.add(new Alarm(0, "Позвонить маме", new DateTime().getMillis()));
         data.add(new Alarm(1, "Выбросить мусор", new DateTime().getMillis()));
-        data.add(new Alarm(2, "Сходить в магазин", new DateTime().plusDays(1).getMillis()));
-        data.add(new Alarm(3, "Постирать одежду", new DateTime().plusDays(1).getMillis()));
+        data.add(new Alarm(2, "Позвонить папке", new DateTime().getMillis()));
+        data.add(new Alarm(3, "Сходить в магазин", new DateTime().plusDays(1).getMillis()));
+        data.add(new Alarm(4, "Постирать одежду", new DateTime().plusDays(1).getMillis()));
+        data.add(new Alarm(5, "Постирать одежду", new DateTime().plusDays(1).getMillis()));
 
         // list adapter
         adapter = new SectionedListAdapter(this,R.layout.list_section,R.id.section_text, data,
