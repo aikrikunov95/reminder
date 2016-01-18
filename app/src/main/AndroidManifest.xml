@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ListActivity"
+            android:name=".UI.ListActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -23,13 +23,13 @@
         </activity>
 
         <activity
-            android:name=".EditActivity"
+            android:name=".UI.EditActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name=".AlertActivity"
+            android:name=".UI.AlertActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:excludeFromRecents="true">

@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder;
+package com.datasorcerers.reminder.UI;
 
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
@@ -6,6 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.datasorcerers.reminder.Alarm;
+import com.datasorcerers.reminder.R;
 
 import org.joda.time.DateTime;
 

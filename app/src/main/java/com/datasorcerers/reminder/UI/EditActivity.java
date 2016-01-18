@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder;
+package com.datasorcerers.reminder.UI;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -19,6 +19,9 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import com.datasorcerers.reminder.Alarm;
+import com.datasorcerers.reminder.R;
 
 import org.joda.time.DateTime;
 

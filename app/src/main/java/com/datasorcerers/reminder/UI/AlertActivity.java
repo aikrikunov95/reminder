@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder;
+package com.datasorcerers.reminder.UI;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -6,6 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import com.datasorcerers.reminder.Alarm;
+import com.datasorcerers.reminder.R;
 
 public class AlertActivity extends AppCompatActivity {
 

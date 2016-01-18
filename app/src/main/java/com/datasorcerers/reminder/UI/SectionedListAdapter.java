@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder;
+package com.datasorcerers.reminder.UI;
 
 import android.content.Context;
 import android.support.v7.util.SortedList;
@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.datasorcerers.reminder.Alarm;
 
 import org.joda.time.DateTime;
 
@@ -140,7 +142,7 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
                     .withMillisOfSecond(0);
             if (!alarmDates.contains(date)) {
                 alarmDates.add(date);
-                sectionsList.add(new Section(i, DateTimeFormatter.formatDate(date)));
+                sectionsList.add(new Section(i, DateTimeFormatter.formatDateWithWeekday(date)));
             }
         }
 
