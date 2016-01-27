@@ -1,5 +1,6 @@
 package com.datasorcerers.reminder.ui;
 
+import android.graphics.Color;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -98,6 +99,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         Alarm alarm = mAlarms.get(position);
         holder.note.setText(alarm.getNote());
         holder.date.setText(DateTimeFormatter.formatTime(new DateTime(alarm.getDatetime())));
+        if (alarm.isNotified()) {
+            holder.note.setTextColor(Color.RED);
+        } else  {
+            holder.note.setTextColor(Color.BLACK);
+        }
     }
 
     @Override
@@ -107,5 +113,9 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     public SortedList<Alarm> getAlarms() {
         return mAlarms;
+    }
+
+    public void clear() {
+        mAlarms.clear();
     }
 }

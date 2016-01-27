@@ -1,6 +1,9 @@
 package com.datasorcerers.reminder.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,12 +18,16 @@ import android.view.View;
 import com.datasorcerers.reminder.Alarm;
 import com.datasorcerers.reminder.AlarmManagerHelper;
 import com.datasorcerers.reminder.DatabaseHelper;
+import com.datasorcerers.reminder.NotificationService;
 import com.datasorcerers.reminder.R;
 
 public class ListActivity extends AppCompatActivity {
 
     public static AppCompatActivity instance;
-    
+
+    private DatabaseHelper db;
+    private BroadcastReceiver receiver;
+
     // ui
     private RecyclerView recyclerView;
     private SectionedListAdapter adapter;
@@ -42,7 +49,7 @@ public class ListActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        final DatabaseHelper db = new DatabaseHelper(getApplicationContext());
+        db = new DatabaseHelper(getApplicationContext());
 
         // list adapter
         adapter = new com.datasorcerers.reminder.ui.SectionedListAdapter(this,R.layout.list_section,R.id.section_text, db.getAll(),
@@ -79,6 +86,11 @@ public class ListActivity extends AppCompatActivity {
                 adapter.remove(alarm);
                 db.delete(alarm);
                 new AlarmManagerHelper(getApplicationContext()).cancel(alarm);
+
+                Intent i = new Intent(getApplicationContext(), NotificationService.class);
+                i.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
+                i.setAction(NotificationService.ACTION_DISMISS);
+                startService(i);
                 // TODO show cancel action toast
             }
         };
@@ -96,10 +108,16 @@ public class ListActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-    }
 
-    public void updateList() {
-        adapter.refresh();
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                adapter.refreshWithList(db.getAll());
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("update_list");
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -133,6 +151,7 @@ public class ListActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         instance = null;
+        unregisterReceiver(receiver);
     }
 }
 

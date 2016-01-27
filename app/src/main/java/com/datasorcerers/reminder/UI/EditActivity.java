@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -134,9 +135,8 @@ public class EditActivity extends AppCompatActivity implements
                     db.update(alarm);
                     am.update(alarm);
                 }
-                if (ListActivity.instance != null) {
-                    ((ListActivity) ListActivity.instance).updateList();
-                }
+                Intent i = new Intent("update_list");
+                sendBroadcast(i);
                 hideKeyboard();
                 finish();
             }

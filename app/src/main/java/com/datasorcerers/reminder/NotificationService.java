@@ -14,7 +14,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 
 import com.datasorcerers.reminder.ui.AlertActivity;
-import com.datasorcerers.reminder.ui.ListActivity;
 
 import org.joda.time.DateTime;
 
@@ -56,6 +55,8 @@ public class NotificationService extends IntentService {
                 if (!alarm.isNotified()) {
                     alarm.makeNotified();
                     db.update(alarm);
+                    Intent i = new Intent("update_list");
+                    sendBroadcast(i);
                 }
                 if (Prefs.isNotifying(context)) {
                     hideAlert();
@@ -82,9 +83,8 @@ public class NotificationService extends IntentService {
                 Prefs.setNotifying(context, false);
                 break;
         }
-        if (ListActivity.instance != null) {
-            ((ListActivity) ListActivity.instance).updateList();
-        }
+        Intent i = new Intent("update_list");
+        sendBroadcast(i);
     }
 
     private void next() {
@@ -136,6 +136,7 @@ public class NotificationService extends IntentService {
         nb.setSmallIcon(R.mipmap.ic_launcher) // TODO icon
                 .setContentTitle("Reminder")
                 .setContentText(alarm.getNote())
+                .setOngoing(true)
                 .setPriority(Notification.PRIORITY_MAX)
                 .addAction(R.drawable.ic_done_white_48dp, "DONE", donePendingIntent)
                 .addAction(R.drawable.ic_update_white_48dp, "SNOOZE", snoozePendingIntent)

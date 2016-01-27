@@ -285,5 +285,10 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
         addAll(alarms);
     }
 
+    public void refreshWithList(List<Alarm> alarms) {
+        mBaseAdapter.clear();
+        addAll(alarms);
+    }
+
 }
 
