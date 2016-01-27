@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder.UI;
+package com.datasorcerers.reminder.ui;
 
 import org.joda.time.DateTime;
 

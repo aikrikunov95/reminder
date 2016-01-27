@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder.UI;
+package com.datasorcerers.reminder.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,16 +13,15 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.datasorcerers.reminder.Alarm;
+import com.datasorcerers.reminder.AlarmManagerHelper;
+import com.datasorcerers.reminder.DatabaseHelper;
 import com.datasorcerers.reminder.R;
-
-import org.joda.time.DateTime;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
 
-    // UI
+    public static AppCompatActivity instance;
+    
+    // ui
     private RecyclerView recyclerView;
     private SectionedListAdapter adapter;
     private FloatingActionButton fab;
@@ -33,6 +32,8 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        instance = this;
+
         toolbar = (Toolbar) findViewById(R.id.toolbar_top);
         setSupportActionBar(toolbar);
 
@@ -41,16 +42,11 @@ public class ListActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        List<Alarm> data = new ArrayList<>();
-        data.add(new Alarm(0, "Позвонить маме", new DateTime().getMillis()));
-        data.add(new Alarm(1, "Выбросить мусор", new DateTime().plusDays(1).getMillis()));
-        data.add(new Alarm(2, "Позвонить папке", new DateTime().plusDays(2).getMillis()));
-        data.add(new Alarm(3, "Сходить в магазин", new DateTime().plusDays(6).getMillis()));
-        data.add(new Alarm(4, "Постирать одежду", new DateTime().plusDays(7).getMillis()));
+        final DatabaseHelper db = new DatabaseHelper(getApplicationContext());
 
         // list adapter
-        adapter = new SectionedListAdapter(this,R.layout.list_section,R.id.section_text, data,
-                new ListAdapter.ViewHolder.AlarmClickListener() {
+        adapter = new com.datasorcerers.reminder.ui.SectionedListAdapter(this,R.layout.list_section,R.id.section_text, db.getAll(),
+                new com.datasorcerers.reminder.ui.ListAdapter.ViewHolder.AlarmClickListener() {
             @Override
             public void onAlarmClick(View caller, int position) {
                 Intent i = new Intent(getApplicationContext(), EditActivity.class);
@@ -65,7 +61,7 @@ public class ListActivity extends AppCompatActivity {
 
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                if (viewHolder instanceof SectionedListAdapter.SectionViewHolder) return 0;
+                if (viewHolder instanceof com.datasorcerers.reminder.ui.SectionedListAdapter.SectionViewHolder) return 0;
                 return super.getSwipeDirs(recyclerView, viewHolder);
             }
 
@@ -81,6 +77,8 @@ public class ListActivity extends AppCompatActivity {
                         viewHolder.getAdapterPosition());
                 Alarm alarm = adapter.get(position);
                 adapter.remove(alarm);
+                db.delete(alarm);
+                new AlarmManagerHelper(getApplicationContext()).cancel(alarm);
                 // TODO show cancel action toast
             }
         };
@@ -98,6 +96,10 @@ public class ListActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+    }
+
+    public void updateList() {
+        adapter.refresh();
     }
 
     @Override
@@ -125,6 +127,12 @@ public class ListActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        instance = null;
     }
 }
 

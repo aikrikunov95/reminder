@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder.UI;
+package com.datasorcerers.reminder.ui;
 
 import android.content.Context;
 import android.support.v7.util.SortedList;
@@ -275,8 +275,13 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
         mBaseAdapter.notifyDataSetChanged();
     }
 
-    public void refresh(List<Alarm> alarms) {
+    public void refresh() {
         clear();
+        SortedList<Alarm> sorted = mBaseAdapter.getAlarms();
+        ArrayList<Alarm> alarms = new ArrayList<>();
+        for (int i = 0; i < sorted.size(); i++) {
+            alarms.add(sorted.get(i));
+        }
         addAll(alarms);
     }
 

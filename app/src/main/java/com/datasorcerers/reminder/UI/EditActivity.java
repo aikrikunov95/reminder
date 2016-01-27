@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder.UI;
+package com.datasorcerers.reminder.ui;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.datasorcerers.reminder.Alarm;
+import com.datasorcerers.reminder.AlarmManagerHelper;
+import com.datasorcerers.reminder.DatabaseHelper;
 import com.datasorcerers.reminder.R;
 
 import org.joda.time.DateTime;
@@ -122,8 +124,19 @@ public class EditActivity extends AppCompatActivity implements
         readyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                DatabaseHelper db = new DatabaseHelper(getApplicationContext());
+                AlarmManagerHelper am = new AlarmManagerHelper(getApplicationContext());
                 note = noteText.getText().toString();
-                alarm = new Alarm(5, note, datetime.getMillis());
+                if (alarm == null) {
+                    alarm = db.create(note, datetime.getMillis());
+                    am.set(alarm);
+                } else {
+                    db.update(alarm);
+                    am.update(alarm);
+                }
+                if (ListActivity.instance != null) {
+                    ((ListActivity) ListActivity.instance).updateList();
+                }
                 hideKeyboard();
                 finish();
             }

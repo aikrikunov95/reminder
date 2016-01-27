@@ -10,11 +10,13 @@ public class Alarm implements Parcelable {
     private int id;
     private String note;
     private long datetime;
+    private boolean notified;
 
-    public Alarm(int id, String note, long datetime) {
+    public Alarm(int id, String note, long datetime, boolean notified) {
         this.id = id;
         this.note = note;
         this.datetime = datetime;
+        this.notified = notified;
     }
 
     public int getId() {
@@ -37,6 +39,14 @@ public class Alarm implements Parcelable {
         this.datetime = datetime;
     }
 
+    public boolean isNotified() {
+        return notified;
+    }
+
+    public void makeNotified() {
+        this.notified = true;
+    }
+
     @Override
     public String toString() {
         return note + " " + String.valueOf(datetime);
@@ -48,6 +58,7 @@ public class Alarm implements Parcelable {
         this.id = in.readInt();
         this.note = in.readString();
         this.datetime = in.readLong();
+        this.notified = in.readByte() != 0;
     }
 
     @Override
@@ -60,6 +71,7 @@ public class Alarm implements Parcelable {
         dest.writeInt(id);
         dest.writeString(note);
         dest.writeLong(datetime);
+        dest.writeByte((byte) (notified ? 1 : 0));
     }
 
     public static final Parcelable.Creator<Alarm> CREATOR = new Creator<Alarm>() {

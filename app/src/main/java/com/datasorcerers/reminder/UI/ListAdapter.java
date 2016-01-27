@@ -1,4 +1,4 @@
-package com.datasorcerers.reminder.UI;
+package com.datasorcerers.reminder.ui;
 
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
