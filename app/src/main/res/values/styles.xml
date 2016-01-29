@@ -9,7 +9,11 @@
     </style>
 
     <style name="AppTheme.Toolbar" >
-        <item name="android:background">#4285F4</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <style name="PickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/colorPrimary</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

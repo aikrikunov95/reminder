@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 
 import com.datasorcerers.reminder.ui.AlertActivity;
+import com.datasorcerers.reminder.ui.ListActivity;
 
 import org.joda.time.DateTime;
 
@@ -125,6 +126,10 @@ public class NotificationService extends IntentService {
     private void issueNotification() {
         Notification.Builder nb = new Notification.Builder(context);
 
+        Intent contentIntent = new Intent(getApplicationContext(), ListActivity.class);
+        contentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent contentPendingIntent = PendingIntent.getService(getApplicationContext(), 0, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         Intent doneIntent = new Intent(getApplicationContext(), NotificationService.class);
         doneIntent.setAction(ACTION_DISMISS);
         PendingIntent donePendingIntent = PendingIntent.getService(getApplicationContext(), 0, doneIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -134,12 +139,12 @@ public class NotificationService extends IntentService {
         PendingIntent snoozePendingIntent = PendingIntent.getService(getApplicationContext(), 0, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         nb.setSmallIcon(R.mipmap.ic_launcher) // TODO icon
-                .setContentTitle("Reminder")
-                .setContentText(alarm.getNote())
+                .setContentTitle(alarm.getNote())
                 .setOngoing(true)
+                .setContentIntent(contentPendingIntent)
                 .setPriority(Notification.PRIORITY_MAX)
-                .addAction(R.drawable.ic_done_white_48dp, "DONE", donePendingIntent)
-                .addAction(R.drawable.ic_update_white_48dp, "SNOOZE", snoozePendingIntent)
+                .addAction(R.drawable.ic_snooze_action, "SNOOZE", snoozePendingIntent)
+                .addAction(R.drawable.ic_done_action, "DONE", donePendingIntent)
                 .setVibrate(new long[0]);
 
         // issue

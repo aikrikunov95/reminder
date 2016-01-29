@@ -101,7 +101,7 @@ public class EditActivity extends AppCompatActivity implements
         dateText.setText(DateTimeFormatter.formatDate(datetime));
 
         timeText = (TextView) findViewById(R.id.time_text);
-        timeText.setPaintFlags(timeText.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+        timeText.setPaintFlags(timeText.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         timeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -186,7 +186,7 @@ public class EditActivity extends AppCompatActivity implements
             int month = bundle.getInt("month");
             int day = bundle.getInt("day");
 
-            return new DatePickerDialog(getActivity(), (EditActivity)getActivity(), year, month, day);
+            return new DatePickerDialog(getActivity(), R.style.PickerTheme, (EditActivity)getActivity(), year, month, day);
         }
     }
 
@@ -199,7 +199,7 @@ public class EditActivity extends AppCompatActivity implements
             int hour = bundle.getInt("hour");
             int minute = bundle.getInt("minute");
 
-            return new TimePickerDialog(getActivity(), (EditActivity)getActivity(), hour, minute,
+            return new TimePickerDialog(getActivity(), R.style.PickerTheme, (EditActivity)getActivity(), hour, minute,
                     DateFormat.is24HourFormat(getActivity()));
         }
     }

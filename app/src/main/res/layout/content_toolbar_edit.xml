@@ -34,6 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/note_text"
+        android:inputType="textCapSentences"
         android:background="@null"
         android:hint="Remind me..."
         android:textColorHint="#fff"

@@ -10,8 +10,9 @@ import android.widget.TextView;
 import com.datasorcerers.reminder.Alarm;
 import com.datasorcerers.reminder.NotificationService;
 import com.datasorcerers.reminder.R;
+import com.datasorcerers.reminder.WakeLock;
 
-    public class AlertActivity extends AppCompatActivity {
+public class AlertActivity extends AppCompatActivity {
 
         public static AppCompatActivity instance;
 
@@ -66,5 +67,6 @@ import com.datasorcerers.reminder.R;
     protected void onDestroy() {
         super.onDestroy();
         instance = null;
+        WakeLock.release();
     }
 }
