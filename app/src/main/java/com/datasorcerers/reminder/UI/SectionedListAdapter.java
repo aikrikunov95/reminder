@@ -275,20 +275,8 @@ public class SectionedListAdapter extends RecyclerView.Adapter<RecyclerView.View
         mBaseAdapter.notifyDataSetChanged();
     }
 
-    public void refresh() {
-        clear();
-        SortedList<Alarm> sorted = mBaseAdapter.getAlarms();
-        ArrayList<Alarm> alarms = new ArrayList<>();
-        for (int i = 0; i < sorted.size(); i++) {
-            alarms.add(sorted.get(i));
-        }
-        addAll(alarms);
-    }
-
-    public void refreshWithList(List<Alarm> alarms) {
+    public void refresh(List<Alarm> alarms) {
         mBaseAdapter.clear();
         addAll(alarms);
     }
-
 }
-

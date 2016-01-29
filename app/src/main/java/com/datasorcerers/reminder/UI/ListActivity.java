@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -82,7 +83,7 @@ public class ListActivity extends AppCompatActivity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position = adapter.sectionedPositionToPosition(
                         viewHolder.getAdapterPosition());
-                Alarm alarm = adapter.get(position);
+                final Alarm alarm = adapter.get(position);
                 adapter.remove(alarm);
                 db.delete(alarm);
                 new AlarmManagerHelper(getApplicationContext()).cancel(alarm);
@@ -91,7 +92,19 @@ public class ListActivity extends AppCompatActivity {
                 i.putExtra(Alarm.ALARM_EXTRA_NAME, alarm);
                 i.setAction(NotificationService.ACTION_DISMISS);
                 startService(i);
-                // TODO show cancel action toast
+
+                final Snackbar snackbar = Snackbar
+                        .make(findViewById(R.id.main_content), "Alarm removed", Snackbar.LENGTH_LONG)
+                        .setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Alarm newAlarm = db.create(alarm.getNote(), alarm.getDatetime());
+                                new AlarmManagerHelper(getApplicationContext()).set(newAlarm);
+                                adapter.add(newAlarm);
+                                adapter.notifyAlarmsDataSetChanged();
+                            }
+                        });
+                snackbar.show();
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallback);
@@ -112,7 +125,7 @@ public class ListActivity extends AppCompatActivity {
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                adapter.refreshWithList(db.getAll());
+                adapter.refresh(db.getAll());
             }
         };
         IntentFilter filter = new IntentFilter();
